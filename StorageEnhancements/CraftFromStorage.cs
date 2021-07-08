@@ -24,7 +24,7 @@ class HasEnoughInInventoryPatch
                 Debug.Log($"current storage has enough: {inventory.GetInstanceID()} {currentStorageInventory?.GetInstanceID()}");
                 return true;
             }
-            
+
             Network_Player player = RAPI.GetLocalPlayer();
 
             // currentstorage does not have enough items, or none
@@ -42,9 +42,6 @@ class HasEnoughInInventoryPatch
             }
 
             return num >= __instance.amount;
-
-            //return CraftFromStorageManager.enoughInStorageInventory(__result, __instance, inventory);
-
         }
         return __result;
     }
@@ -70,7 +67,8 @@ class SetAmountInInventoryPatch
                 {
                     Inventory container = storage.GetInventoryReference();
 
-                    if ((storage.IsOpen && currentStorageInventory != container) || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
+                    bool isOpenByAnotherPlayer = (storage.IsOpen && currentStorageInventory != container);
+                    if (isOpenByAnotherPlayer || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                         continue;
 
                     storageInventoryAmount += container.GetItemCount(recipeItem.UniqueName);
@@ -78,7 +76,6 @@ class SetAmountInInventoryPatch
             }
 
             __instance.SetAmount(playerInventoryAmount + storageInventoryAmount);
-            //__instance.SetAmount(__instance.GetAmount() + InventoryManager.getItemCountInInventory(__instance, null));
         }
     }
 }
@@ -88,7 +85,6 @@ class CraftItemPatch
 {
     static void Prefix(SelectedRecipeBox ___selectedRecipeBox)
     {
-        Debug.Log("HarmonyPatch CraftItem");
         Item_Base itemBase = ___selectedRecipeBox.selectedRecipeItem;
 
         if (itemBase != null)
@@ -104,7 +100,6 @@ class OnQuickCraftPatch
 {
     static void Prefix(Item_Base ___item)
     {
-        Debug.Log("HarmonyPatch OnQuickCraft");
         if (___item != null)
         {
             CostMultiple[] newCost = ___item.settings_recipe.NewCost;
@@ -199,6 +194,11 @@ class CraftFromStorageManager
         return enough;
     }
 
+    /// <summary>
+    /// costBox.items is protected on BuildingUI_CostBox, so we use harmony to get access
+    /// </summary>
+    /// <param name="costBox"></param>
+    /// <returns></returns>
     static public List<Item_Base> getItemsFromCostBox(BuildingUI_CostBox costBox)
     {
         return Traverse.Create(costBox).Field("items").GetValue<List<Item_Base>>();
@@ -208,30 +208,53 @@ class CraftFromStorageManager
     {
         if (!CraftFromStorageManager.isUnlimitedResources())
         {
-            Inventory storageInventory = InventoryManager.GetCurrentStorageInventory();
             Inventory playerInventory = InventoryManager.getPlayerInventory();
 
-            if (storageInventory != null)
-            {
-                for (int i = 0; i < (int)costMultipleArray.Length; i++)
-                {
-                    CostMultiple costMultiple = costMultipleArray[i];
-                    int num = costMultiple.amount - InventoryManager.getItemCountInInventory(costMultiple, playerInventory);
+            Inventory storageInventory = InventoryManager.GetCurrentStorageInventory();
 
-                    for (int j = 0; j < (int)costMultiple.items.Length; j++)
+            // Remove items from player inventory, then the open storage, then other chests.
+
+            foreach (var costMultiple in costMultipleArray)
+            {
+                var remainingAmount = costMultiple.amount;
+
+                foreach (var item in costMultiple.items)
+                {
+                    // Handle Player inventory
+                    remainingAmount = RemoveItemFromInventory(item, playerInventory, remainingAmount);
+
+                    if (remainingAmount <= 0)
                     {
-                        int itemCount = storageInventory.GetItemCount(costMultiple.items[j].UniqueName);
-                        if (itemCount < num)
+                        continue;
+                    }
+
+                    // Handle Current Opened Storage
+                    remainingAmount = RemoveItemFromInventory(item, storageInventory, remainingAmount);
+
+                    if (remainingAmount <= 0)
+                    {
+                        continue;
+                    }
+
+                    // Handle all other containers
+                    foreach (Storage_Small storage in StorageManager.allStorages)
+                    {
+                        Inventory container = storage.GetInventoryReference();
+                        if (container == playerInventory || container == storageInventory || storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                         {
-                            storageInventory.RemoveItem(costMultiple.items[j].UniqueName, itemCount);
-                            num -= itemCount;
+                            continue;
                         }
-                        else
-                        {
-                            storageInventory.RemoveItem(costMultiple.items[j].UniqueName, num);
-                            num = 0;
-                        }
-                        if (num <= 0)
+
+                        remainingAmount = RemoveItemFromInventory(item, container, remainingAmount);
+
+                        //storage.Close();
+
+                        //var eventRef = Traverse.Create(ComponentManager<SoundManager>.Value).Field("eventRef_UI_MoveItem").GetValue<string>();
+                        //var msg = new Message_SoundManager_PlayOneShot(Messages.SoundManager_PlayOneShot, ComponentManager<Semih_Network>.Value.NetworkIDManager, ComponentManager<SoundManager>.Value.ObjectIndex, eventRef, storage.transform.position);
+                        //msg.Broadcast();
+                        //FMODUnity.RuntimeManager.PlayOneShot(eventRef, msg.Position);
+
+                        if (remainingAmount <= 0)
                         {
                             break;
                         }
@@ -239,5 +262,14 @@ class CraftFromStorageManager
                 }
             }
         }
+    }
+
+    private static int RemoveItemFromInventory(Item_Base item, Inventory inventory, int remainingAmount)
+    {
+        var inventoryAmount = inventory.GetItemCount(item.UniqueName);
+        int amountToRemove = Math.Min(remainingAmount, inventoryAmount);
+        inventory.RemoveItem(item.UniqueName, amountToRemove);
+
+        return remainingAmount - amountToRemove;
     }
 }
