@@ -22,31 +22,8 @@ public class StorageEnhancements : Mod
     {
         harmony = new Harmony(harmonyId);
         harmony.PatchAll(Assembly.GetExecutingAssembly());
+        //this.gameObject.AddComponent<ShowStorageIcons>();
         Debug.Log("StorageEnhancements Mod has been loaded!");
-
-        //Debug.Log("Finding all storages");
-        //var storages = StorageManager.allStorages;
-        //foreach (var storage in storages)
-        //{
-        //    /*
-        //     * if (GameModeValueManager.GetCurrentGameModeValue().playerSpecificVariables.unlimitedResources)
-		      //  {
-			     //   return int.MaxValue;
-		      //  }
-        //     */
-        //    var inventory = storage.GetInventoryReference();
-        //    var slots = inventory.allSlots;
-        //    foreach (var slot in slots)
-        //    {
-        //        if (slot.IsEmpty)
-        //        {
-        //            continue;
-        //        }
-
-        //        Debug.Log($"storage: {storage.GetInstanceID()} {storage.name} | slot: {slot.name} {slot.itemInstance.UniqueIndex} {slot.itemInstance.UniqueName} {slot.itemInstance.Amount}");
-        //    }
-        //}
-
 
     }
 
