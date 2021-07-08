@@ -10,6 +10,7 @@ using UnityEngine;
  * All In One inventory that opens by default when you press tab? - should render all storages on your raft.
  * Craft From storage, should craft from all chests, not only your local one.
  * - if you have a storage open, prefer taking items from that one. else take it from the other storages.
+ * Hold modifiers to increase how many are crafted when pressing the craft button.
  */
 
 

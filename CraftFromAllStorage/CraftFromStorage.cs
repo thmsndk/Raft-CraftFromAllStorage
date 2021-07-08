@@ -97,6 +97,9 @@ class CraftItemPatch
     }
 }
 // TODO: there seems to be some wrong crafting with quick crafting of bolts... needs to investigate.
+/*
+ * Attempting to craft 2/6 nails crashes the client to desktop, possibly because I only have 3/2 scrap?
+ */
 [HarmonyPatch(typeof(BuildingUI_Costbox_Sub_Crafting), "OnQuickCraft")]
 class OnQuickCraftPatch
 {
