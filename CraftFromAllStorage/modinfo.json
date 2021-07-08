@@ -1,14 +1,14 @@
 {
   "name": "Craft From All Storage",
   "author": "thmsn",
-  "description": "",
+  "description": "Allows you to craft with resources in any storage container.",
   "version": "1.0",
   "license": "GNU AGPLv3",
   "icon": "icon.png",
   "banner": "banner.jpg",
   "gameVersion": "13.01",
   "requiredByAllPlayers": false,
-  "updateUrl": "https://www.raftmodding.com/api/v1/mods/YOUR-MOD-SLUG-HERE/version.txt",
+  "updateUrl": "https://www.raftmodding.com/api/v1/mods/craft-from-all-storage/version.txt",
   "isModPermanent": false,
   "excludedFiles": []
 }
