@@ -21,7 +21,7 @@ class HasEnoughInInventoryPatch
             var currentStorageInventory = InventoryManager.GetCurrentStorageInventory();
             if (currentStorageInventory != null && __instance.HasEnoughInInventory(currentStorageInventory))
             {
-                Debug.Log($"current storage has enough: {inventory.GetInstanceID()} {currentStorageInventory?.GetInstanceID()}");
+                //Debug.Log($"current storage has enough: {inventory.GetInstanceID()} {currentStorageInventory?.GetInstanceID()}");
                 return true;
             }
 
@@ -47,7 +47,6 @@ class HasEnoughInInventoryPatch
     }
 }
 
-// TODO: 3 bolts in the medival chest seems to end up counting double? seems to only be in medival chests and luggage.
 [HarmonyPatch(typeof(BuildingUI_CostBox), "SetAmountInInventory")]
 class SetAmountInInventoryPatch
 {
@@ -70,12 +69,11 @@ class SetAmountInInventoryPatch
 
                     bool isOpenByAnotherPlayer = (storage.IsOpen && currentStorageInventory != container);
                     if (isOpenByAnotherPlayer || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
+                    {
                         continue;
+                    }
 
-                    //int count = container.GetItemCount(costBoxItem.UniqueName); // GetItemCount returns double the amount present for MedeivalChest and Luggage from MoreStoragesMod
-                    int count = container.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
-                    storageInventoryAmount += count;
-                    //Debug.Log($"{costBoxItem.UniqueName} => {storage.name} => {count} {storageInventoryAmount}");
+                    storageInventoryAmount += container.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
                 }
             }
 
