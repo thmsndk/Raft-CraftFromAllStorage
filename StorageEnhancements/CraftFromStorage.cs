@@ -15,7 +15,7 @@ class HasEnoughInInventoryPatch
         // player inventory should already have been checked
         var enoughInPlayerInventory = __result;
 
-        if (!CraftFromStorageManager.isUnlimitedResources() && !enoughInPlayerInventory)
+        if (!CraftFromStorageManager.HasUnlimitedResources() && !enoughInPlayerInventory)
         {
             // verify if current open storage has enough items andd return early
             var currentStorageInventory = InventoryManager.GetCurrentStorageInventory();
@@ -52,7 +52,7 @@ class SetAmountInInventoryPatch
 {
     static void Postfix(PlayerInventory inventory, BuildingUI_CostBox __instance)
     {
-        if (!CraftFromStorageManager.isUnlimitedResources())
+        if (!CraftFromStorageManager.HasUnlimitedResources())
         {
             var playerInventoryAmount = __instance.GetAmount();
 
@@ -110,88 +110,26 @@ class OnQuickCraftPatch
 
 class InventoryManager
 {
-    static public Inventory getPlayerInventory()
+    static public Inventory GetPlayerInventory()
     {
         return RAPI.GetLocalPlayer().Inventory;
     }
 
+    /// <summary>
+    /// Gets the currently open storage inventory for the player
+    /// </summary>
+    /// <returns></returns>
     static public Inventory GetCurrentStorageInventory()
     {
         return RAPI.GetLocalPlayer().StorageManager.currentStorage?.GetInventoryReference();
-    }
-
-    static public bool isStorageInventoryOpened()
-    {
-        return InventoryManager.GetCurrentStorageInventory() != null;
-    }
-
-    static public bool isInventorySameAsOpenedStorageInventory(Inventory inventory)
-    {
-        return InventoryManager.GetCurrentStorageInventory() == inventory;
-    }
-
-    static public int getItemCountInInventory(BuildingUI_CostBox costBox, Inventory inventory)
-    {
-        Inventory actualInventory = inventory != null ? inventory : InventoryManager.GetCurrentStorageInventory();
-        List<Item_Base> items = CraftFromStorageManager.getItemsFromCostBox(costBox);
-        int itemCount = 0;
-
-        if (actualInventory != null)
-        {
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i] != null)
-                {
-                    itemCount += actualInventory.GetItemCount(items[i].UniqueName);
-                }
-            }
-        }
-
-        return itemCount;
-    }
-
-    static public int getItemCountInInventory(CostMultiple costMultiple, Inventory inventory)
-    {
-        Inventory actualInventory = inventory != null ? inventory : InventoryManager.GetCurrentStorageInventory();
-        Item_Base[] items = costMultiple.items;
-        int itemCount = 0;
-
-        if (actualInventory != null)
-        {
-            for (int i = 0; i < items.Length; i++)
-            {
-                if (items[i] != null)
-                {
-                    itemCount += actualInventory.GetItemCount(items[i].UniqueName);
-                }
-            }
-        }
-
-        return itemCount;
     }
 }
 
 class CraftFromStorageManager
 {
-    static public bool isUnlimitedResources()
+    static public bool HasUnlimitedResources()
     {
         return GameModeValueManager.GetCurrentGameModeValue().playerSpecificVariables.unlimitedResources;
-    }
-
-
-    static public bool enoughInStorageInventory(bool enouthInPlayerInventory, CostMultiple costMultiple, Inventory inventoryToCheck)
-    {
-        bool enough = enouthInPlayerInventory;
-
-        if (!CraftFromStorageManager.isUnlimitedResources())
-        {
-            if (enough == false && InventoryManager.isStorageInventoryOpened() && !InventoryManager.isInventorySameAsOpenedStorageInventory(inventoryToCheck))
-            {
-                enough = costMultiple.HasEnoughInInventory(InventoryManager.GetCurrentStorageInventory());
-            }
-        }
-
-        return enough;
     }
 
     /// <summary>
@@ -206,9 +144,9 @@ class CraftFromStorageManager
 
     static public void RemoveCostMultiple(CostMultiple[] costMultipleArray)
     {
-        if (!CraftFromStorageManager.isUnlimitedResources())
+        if (!CraftFromStorageManager.HasUnlimitedResources())
         {
-            Inventory playerInventory = InventoryManager.getPlayerInventory();
+            Inventory playerInventory = InventoryManager.GetPlayerInventory();
 
             Inventory storageInventory = InventoryManager.GetCurrentStorageInventory();
 
@@ -266,10 +204,20 @@ class CraftFromStorageManager
 
     private static int RemoveItemFromInventory(Item_Base item, Inventory inventory, int remainingAmount)
     {
+        // Handle when current storage is null
+        if (inventory == null)
+        {
+            return remainingAmount;
+        }
+
         var inventoryAmount = inventory.GetItemCount(item.UniqueName);
         int amountToRemove = Math.Min(remainingAmount, inventoryAmount);
-        inventory.RemoveItem(item.UniqueName, amountToRemove);
+        if (amountToRemove > 0)
+        {
+            inventory.RemoveItem(item.UniqueName, amountToRemove);
+            return remainingAmount - amountToRemove;
+        }
 
-        return remainingAmount - amountToRemove;
+        return remainingAmount;
     }
 }
