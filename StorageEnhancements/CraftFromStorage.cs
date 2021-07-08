@@ -37,7 +37,7 @@ class HasEnoughInInventoryPatch
                     if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                         continue;
 
-                    num += container.GetItemCount(costMultipleItems.UniqueName);
+                    num += container.GetItemCountWithoutDuplicates(costMultipleItems.UniqueName);
                 }
             }
 
@@ -72,9 +72,10 @@ class SetAmountInInventoryPatch
                     if (isOpenByAnotherPlayer || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                         continue;
 
-                    int count = container.GetItemCount(costBoxItem.UniqueName);
+                    //int count = container.GetItemCount(costBoxItem.UniqueName); // GetItemCount returns double the amount present for MedeivalChest and Luggage from MoreStoragesMod
+                    int count = container.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
                     storageInventoryAmount += count;
-                    //Debug.Log($"{costBoxItem.UniqueName} => {storage.name} => {count}");
+                    //Debug.Log($"{costBoxItem.UniqueName} => {storage.name} => {count} {storageInventoryAmount}");
                 }
             }
 
@@ -223,4 +224,34 @@ class CraftFromStorageManager
 
         return remainingAmount;
     }
+}
+
+public static class FixMoreStoragesExtensions
+{
+    /// <summary>
+    /// MoreStorages adds two containers that seem to contain duplicate slots
+    /// </summary>
+    /// <param name="inventory"></param>
+    /// <param name="uniqueItemName"></param>
+    /// <returns></returns>
+    public static int GetItemCountWithoutDuplicates(this Inventory inventory, string uniqueItemName)
+    {
+        if (GameModeValueManager.GetCurrentGameModeValue().playerSpecificVariables.unlimitedResources)
+        {
+            return int.MaxValue;
+        }
+        var visitedItemInstances = new HashSet<Slot>();
+        int num = 0;
+        foreach (Slot slot in inventory.allSlots)
+        {
+            if (!slot.IsEmpty && slot.itemInstance.UniqueName == uniqueItemName && !visitedItemInstances.Contains(slot))
+            {
+                num += slot.itemInstance.Amount;
+                visitedItemInstances.Add(slot);
+            }
+        }
+
+        return num;
+    }
+
 }
