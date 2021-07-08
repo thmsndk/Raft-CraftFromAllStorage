@@ -47,6 +47,7 @@ class HasEnoughInInventoryPatch
     }
 }
 
+// TODO: 3 bolts in the medival chest seems to end up counting double? seems to only be in medival chests and luggage.
 [HarmonyPatch(typeof(BuildingUI_CostBox), "SetAmountInInventory")]
 class SetAmountInInventoryPatch
 {
@@ -59,9 +60,9 @@ class SetAmountInInventoryPatch
             List<Item_Base> items = CraftFromStorageManager.getItemsFromCostBox(__instance);
 
             var currentStorageInventory = InventoryManager.GetCurrentStorageInventory();
-
+            
             int storageInventoryAmount = 0;
-            foreach (var recipeItem in items)
+            foreach (var costBoxItem in items)
             {
                 foreach (Storage_Small storage in StorageManager.allStorages)
                 {
@@ -71,7 +72,9 @@ class SetAmountInInventoryPatch
                     if (isOpenByAnotherPlayer || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                         continue;
 
-                    storageInventoryAmount += container.GetItemCount(recipeItem.UniqueName);
+                    int count = container.GetItemCount(costBoxItem.UniqueName);
+                    storageInventoryAmount += count;
+                    //Debug.Log($"{costBoxItem.UniqueName} => {storage.name} => {count}");
                 }
             }
 
@@ -94,7 +97,7 @@ class CraftItemPatch
         }
     }
 }
-
+// TODO: there seems to be some wrong crafting with quick crafting of bolts... needs to investigate.
 [HarmonyPatch(typeof(BuildingUI_Costbox_Sub_Crafting), "OnQuickCraft")]
 class OnQuickCraftPatch
 {
@@ -205,7 +208,7 @@ class CraftFromStorageManager
     private static int RemoveItemFromInventory(Item_Base item, Inventory inventory, int remainingAmount)
     {
         // Handle when current storage is null
-        if (inventory == null)
+        if (inventory == null || item == null)
         {
             return remainingAmount;
         }
