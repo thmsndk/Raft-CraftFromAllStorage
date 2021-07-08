@@ -14,7 +14,7 @@ using UnityEngine;
  */
 
 
-public class StorageEnhancements : Mod
+public class CraftFromAllStorageMod : Mod
 {
     private const string harmonyId = "com.thmsn.craft-from-all-storage";
     Harmony harmony;
