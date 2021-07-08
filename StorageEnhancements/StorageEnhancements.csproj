@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="CraftFromStorage.cs" />
     <Compile Include="ExtentionMethods.cs" />
+    <Compile Include="ShowStorageIcons.cs" />
     <Compile Include="StorageEnhancements.cs" />
   </ItemGroup>
   <ItemGroup>
