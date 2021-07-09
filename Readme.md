@@ -2,8 +2,6 @@
 
 This is a mod for Raft based on the Craft From Storage mod by Azzmurr
 
-
-
 This mods allows you to craft items with resources from both your inventory and other storages. 
 Resources are taken in the following priority
 - your inventory
@@ -12,8 +10,6 @@ Resources are taken in the following priority
 
 It can take partial resources from each inventory.
 It should not count resources in inventories opened by other players
-
-
 
 # Troubleshooting
 This mod is released as is and may contain bugs  

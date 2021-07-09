@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public static class FixMoreStoragesExtensions
 {
@@ -16,12 +17,14 @@ public static class FixMoreStoragesExtensions
         }
         var visitedItemInstances = new HashSet<Slot>();
         int num = 0;
+        
         foreach (Slot slot in inventory.allSlots)
         {
             if (!slot.IsEmpty && slot.itemInstance.UniqueName == uniqueItemName && !visitedItemInstances.Contains(slot))
             {
                 num += slot.itemInstance.Amount;
                 visitedItemInstances.Add(slot);
+                //Debug.Log($"{inventory.name} {slot.itemInstance.UniqueIndex} {slot.itemInstance.Amount}");
             }
         }
 

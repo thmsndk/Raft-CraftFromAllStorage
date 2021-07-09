@@ -81,34 +81,18 @@ class SetAmountInInventoryPatch
     }
 }
 
-[HarmonyPatch(typeof(CraftingMenu), "CraftItem")]
-class CraftItemPatch
-{
-    static void Prefix(SelectedRecipeBox ___selectedRecipeBox)
-    {
-        Item_Base itemBase = ___selectedRecipeBox.selectedRecipeItem;
+//// TODO: there seems to be some wrong crafting with quick crafting of bolts... needs to investigate.
+///*
+// * Attempting to craft 2/6 nails crashes the client to desktop, possibly because I only have 3/2 scrap?
+// */
 
-        if (itemBase != null)
-        {
-            CostMultiple[] newCost = itemBase.settings_recipe.NewCost;
-            CraftFromStorageManager.RemoveCostMultiple(newCost);
-        }
-    }
-}
-// TODO: there seems to be some wrong crafting with quick crafting of bolts... needs to investigate.
-/*
- * Attempting to craft 2/6 nails crashes the client to desktop, possibly because I only have 3/2 scrap?
- */
-[HarmonyPatch(typeof(BuildingUI_Costbox_Sub_Crafting), "OnQuickCraft")]
-class OnQuickCraftPatch
+[HarmonyPatch(typeof(PlayerInventory), "RemoveCostMultiple")]
+class RemoveCost
 {
-    static void Prefix(Item_Base ___item)
+    static bool Prefix(CostMultiple[] costMultiple)
     {
-        if (___item != null)
-        {
-            CostMultiple[] newCost = ___item.settings_recipe.NewCost;
-            CraftFromStorageManager.RemoveCostMultiple(newCost);
-        }
+        CraftFromStorageManager.RemoveCostMultiple(costMultiple);
+        return false; // Prevent the original RemoveCostMultiple from running.
     }
 }
 
