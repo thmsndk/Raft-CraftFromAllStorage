@@ -24,7 +24,14 @@ public class CraftFromAllStorageMod : Mod
         harmony = new Harmony(harmonyId);
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         Debug.Log("Craft From All Sotrage Mod has been loaded!");
+    }
 
+    public override void WorldEvent_WorldLoaded()
+    {
+        var recipeBox = ComponentManager<CraftingMenu>.Value.selectedRecipeBox;
+        recipeBox.gameObject.AddComponent<CraftModifierKeys>();
+
+        base.WorldEvent_WorldLoaded();
     }
 
     public void OnModUnload()
@@ -32,5 +39,26 @@ public class CraftFromAllStorageMod : Mod
         Debug.Log("Craft From All Sotrage Mod has been unloaded!");
         harmony.UnpatchAll(harmonyId);
         Destroy(gameObject);
+    }
+}
+
+public class CraftModifierKeys : MonoBehaviour
+{
+    private void Start()
+    {
+        Debug.Log("CraftModifierKeys started");
+    }
+
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            Debug.Log("Left shift pressed");
+        }
+
+        if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            Debug.Log("Left alt pressed");
+        }
     }
 }

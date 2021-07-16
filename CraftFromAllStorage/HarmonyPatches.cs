@@ -7,6 +7,28 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
+/*
+ * BuildingUI_Costbox_Sub_Crafting.quickCraftButton is the button we press to do quick craft
+// TODO: patch OnQuickCraft and adjust cost / amountToCraft if we have shift held
+
+alternatively we inject new buttons to the interface and register custom methods for them?
+CraftingMenu
+    SelectRecipe - this.selectedRecipeBox.DisplayRecipe(recipeItem);
+
+SelectedRecipeBox
+    Initialize?
+    craftButton
+
+RecipeMenuItem
+
+// Guess we need a script with an update statement to determine if we have a modifier key shown?
+
+*/
+
+/*
+ * BuildingUI_Costbox_Sub_Crafting calls this.item.settings_recipe.HasEnoughResourcesToCraft every update, as a result. HasEnoughInInventory is called A LOT.
+ * We might need to cache the amount and update it
+ */
 
 [HarmonyPatch(typeof(CostMultiple), "HasEnoughInInventory")]
 class HasEnoughInInventoryPatch
