@@ -105,6 +105,33 @@ class SetAmountInInventoryPatch
     }
 }
 
+/// <summary>
+/// CraftItem is patched so when we craft with a multiplier, we spawn the additional items.
+/// </summary>
+[HarmonyPatch(typeof(CraftingMenu), "CraftItem")]
+class CraftItem_ModifierKeys
+{
+    static void Postfix(CraftingMenu __instance)
+    {
+        var itemToCraft = __instance.selectedRecipeBox.ItemToCraft;
+        var localPlayer = ComponentManager<Network_Player>.Value;
+
+        var amountToCraft = CraftModifierKeys.amountToCraft - itemToCraft.settings_recipe.AmountToCraft; // the original CraftItem have already crafted one
+        var stacksToCraft = Mathf.Floor(amountToCraft / itemToCraft.settings_Inventory.StackSize);
+        for (int i = 0; i < stacksToCraft; i++)
+        {
+            localPlayer.Inventory.AddItem(itemToCraft.UniqueName, itemToCraft.settings_Inventory.StackSize);
+        }
+
+        var rest = amountToCraft % itemToCraft.settings_Inventory.StackSize;
+        if (rest > 0)
+        {
+            localPlayer.Inventory.AddItem(itemToCraft.UniqueName, rest);
+        }
+    }
+}
+
+
 //// TODO: there seems to be some wrong crafting with quick crafting of bolts... needs to investigate.
 ///*
 // * Attempting to craft 2/6 nails crashes the client to desktop, possibly because I only have 3/2 scrap?

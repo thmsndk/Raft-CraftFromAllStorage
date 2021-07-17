@@ -58,6 +58,8 @@ public class CraftFromAllStorageMod : Mod
     }
 }
 
+// Perhaps we can use the transpiler to rewrite CraftItem, to loop amountToCraft vs stacksize, alternatively we just need to add a postfix that does that -1
+
 public class CraftModifierKeys : MonoBehaviour
 {
 
@@ -69,6 +71,8 @@ public class CraftModifierKeys : MonoBehaviour
     private Dictionary<string, int> originalNewCost = new Dictionary<string, int>();
     private Item_Base originalItem;
     private bool leftShiftModifier = false;
+
+    public static int amountToCraft = 1;
     
     private void Start()
     {
@@ -116,6 +120,7 @@ public class CraftModifierKeys : MonoBehaviour
             if (SelectedRecipeBox.ItemToCraft != null)
             {
                 ModifyCostMultiple(SelectedRecipeBox.ItemToCraft.settings_recipe.NewCost, multiplier);
+                amountToCraft = SelectedRecipeBox.ItemToCraft.settings_recipe.AmountToCraft * multiplier;
             }
         }
 
@@ -125,6 +130,8 @@ public class CraftModifierKeys : MonoBehaviour
 
             craftButtonText.text = originalCraftButtonText;
             //Traverse.Create(SelectedRecipeBox.ItemToCraft.settings_recipe).Field("amountToCraft").SetValue(SelectedRecipeBox.ItemToCraft.settings_recipe.AmountToCraft / multiplier);
+
+            amountToCraft = SelectedRecipeBox.ItemToCraft.settings_recipe.AmountToCraft;
 
             RestoreOriginalCostMultiple();
         }
