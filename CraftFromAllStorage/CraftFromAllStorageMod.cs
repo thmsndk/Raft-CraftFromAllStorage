@@ -16,6 +16,7 @@ using UnityEngine;
 
 public class CraftFromAllStorageMod : Mod
 {
+    public static string ModNamePrefix = "<color=#d16e17>[Craft From All Storage]</color>";
     private const string harmonyId = "com.thmsn.craft-from-all-storage";
     Harmony harmony;
 
@@ -23,13 +24,13 @@ public class CraftFromAllStorageMod : Mod
     {
         harmony = new Harmony(harmonyId);
         harmony.PatchAll(Assembly.GetExecutingAssembly());
-        Debug.Log("Craft From All Sotrage Mod has been loaded!");
+        Debug.Log(ModNamePrefix + " has been loaded!");
 
     }
 
     public void OnModUnload()
     {
-        Debug.Log("Craft From All Sotrage Mod has been unloaded!");
+        Debug.Log(ModNamePrefix + " has been unloaded!");
         harmony.UnpatchAll(harmonyId);
         Destroy(gameObject);
     }
