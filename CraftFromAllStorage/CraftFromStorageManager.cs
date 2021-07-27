@@ -45,6 +45,7 @@ class CraftFromStorageManager
 
                     // Handle Current Opened Storage
                     remainingAmount = RemoveItemFromInventory(item, storageInventory, remainingAmount);
+                    
 
                     if (remainingAmount <= 0)
                     {
@@ -61,13 +62,8 @@ class CraftFromStorageManager
                         }
 
                         remainingAmount = RemoveItemFromInventory(item, container, remainingAmount);
-
-                        //storage.Close();
-
-                        //var eventRef = Traverse.Create(ComponentManager<SoundManager>.Value).Field("eventRef_UI_MoveItem").GetValue<string>();
-                        //var msg = new Message_SoundManager_PlayOneShot(Messages.SoundManager_PlayOneShot, ComponentManager<Semih_Network>.Value.NetworkIDManager, ComponentManager<SoundManager>.Value.ObjectIndex, eventRef, storage.transform.position);
-                        //msg.Broadcast();
-                        //FMODUnity.RuntimeManager.PlayOneShot(eventRef, msg.Position);
+                        // We close the storage to sync changes to other players
+                        storage.BroadcastCloseEvent();
 
                         if (remainingAmount <= 0)
                         {
