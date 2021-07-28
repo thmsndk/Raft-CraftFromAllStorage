@@ -45,6 +45,12 @@ class HasEnoughInInventoryPatch
                         continue;
 
                     num += container.GetItemCountWithoutDuplicates(costMultipleItems.UniqueName);
+
+                    if (num >= __instance.amount)
+                    {
+                        // bail out early so we don't check ALL storage
+                        return true;
+                    }
                 }
             }
 
