@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 class CraftFromStorageManager
 {
@@ -23,8 +24,10 @@ class CraftFromStorageManager
     {
         if (!CraftFromStorageManager.HasUnlimitedResources())
         {
+            Debug.Log("Getting player inventory");
             Inventory playerInventory = InventoryManager.GetPlayerInventory();
 
+            Debug.Log("Getting storage inventory");
             Inventory storageInventory = InventoryManager.GetCurrentStorageInventory();
 
             // Remove items from player inventory, then the open storage, then other chests.
@@ -35,23 +38,28 @@ class CraftFromStorageManager
 
                 foreach (var item in costMultiple.items)
                 {
+                    Debug.Log($"Preparing to remove {remainingAmount} {item.UniqueName} from player inventory");
                     // Handle Player inventory
                     remainingAmount = RemoveItemFromInventory(item, playerInventory, remainingAmount);
 
                     if (remainingAmount <= 0)
                     {
+                        Debug.Log($"no more {item.UniqueName} to be removed.");
                         continue;
                     }
 
+                    Debug.Log($"Preparing to remove {remainingAmount} {item.UniqueName} from currently open storage");
                     // Handle Current Opened Storage
                     remainingAmount = RemoveItemFromInventory(item, storageInventory, remainingAmount);
                     
 
                     if (remainingAmount <= 0)
                     {
+                        Debug.Log($"no more {item.UniqueName} to be removed.");
                         continue;
                     }
 
+                    Debug.Log($"Preparing to remove {remainingAmount} {item.UniqueName} from all other storages");
                     // Handle all other containers
                     foreach (Storage_Small storage in StorageManager.allStorages)
                     {
@@ -67,11 +75,13 @@ class CraftFromStorageManager
 
                         if (remainingAmount <= 0)
                         {
+                            Debug.Log($"no more {item.UniqueName} to be removed.");
                             break;
                         }
                     }
                 }
             }
+            Debug.Log($"all resources where removed.");
         }
     }
 
@@ -84,10 +94,13 @@ class CraftFromStorageManager
         }
 
         var inventoryAmount = inventory.GetItemCount(item.UniqueName);
+        Debug.Log($"inventory has {inventoryAmount} {item.UniqueName}");
         int amountToRemove = Math.Min(remainingAmount, inventoryAmount);
         if (amountToRemove > 0)
         {
+            Debug.Log($"Preparing to remove {amountToRemove} {item.UniqueName}");
             inventory.RemoveItem(item.UniqueName, amountToRemove);
+            Debug.Log($"{amountToRemove} {item.UniqueName} was removed");
             return remainingAmount - amountToRemove;
         }
 
