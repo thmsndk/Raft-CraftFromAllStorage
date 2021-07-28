@@ -20,13 +20,19 @@ class HasEnoughInInventoryPatch
         {
             // verify if current open storage has enough items andd return early
             var currentStorageInventory = InventoryManager.GetCurrentStorageInventory();
+
+            if (currentStorageInventory != null && currentStorageInventory == inventory)
+            {
+                // We potentially call this patch recursively with the above check, thus we bail out.
+                //Debug.Log("current storage and inventory we are checking are the same, bail out.");
+                return __result;
+            }
+
             if (currentStorageInventory != null && __instance.HasEnoughInInventory(currentStorageInventory))
             {
                 //Debug.Log($"current storage has enough: {inventory.GetInstanceID()} {currentStorageInventory?.GetInstanceID()}");
                 return true;
             }
-
-            Network_Player player = RAPI.GetLocalPlayer();
 
             // currentstorage does not have enough items, or none
             int num = 0;
