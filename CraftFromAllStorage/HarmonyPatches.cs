@@ -48,15 +48,6 @@ class HasEnoughInInventoryPatch
     }
 }
 
-/*
- on exit 
-NullReferenceException: Object reference not set to an instance of an object
-InventoryManager.GetCurrentStorageInventory () (at <73574942d8b84146804ac6fb934a4682>:0)
-SetAmountInInventoryPatch.Postfix (PlayerInventory inventory, BuildingUI_CostBox __instance) (at <73574942d8b84146804ac6fb934a4682>:0)
-(wrapper dynamic-method) BuildingUI_CostBox.DMD<DMD<SetAmountInInventory_Patch1>?1356250496::SetAmountInInventory_Patch1>(BuildingUI_CostBox,PlayerInventory)
-CostCollection.ShowCost (CostMultiple[] cost) (at <1625233a19c64a01aa83bf62cbe0e622>:0)
-BuildMenu.Update () (at <1625233a19c64a01aa83bf62cbe0e622>:0)
- */
 [HarmonyPatch(typeof(BuildingUI_CostBox), "SetAmountInInventory")]
 class SetAmountInInventoryPatch
 {

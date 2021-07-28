@@ -2,7 +2,7 @@
 {
     static public Inventory GetPlayerInventory()
     {
-        return RAPI.GetLocalPlayer().Inventory;
+        return RAPI.GetLocalPlayer()?.Inventory;
     }
 
     /// <summary>
@@ -11,7 +11,7 @@
     /// <returns></returns>
     static public Inventory GetCurrentStorageInventory()
     {
-        return RAPI.GetLocalPlayer().StorageManager.currentStorage?.GetInventoryReference();
+        return RAPI.GetLocalPlayer()?.StorageManager?.currentStorage?.GetInventoryReference();
     }
 }
 
