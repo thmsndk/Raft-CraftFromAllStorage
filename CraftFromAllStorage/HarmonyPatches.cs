@@ -27,7 +27,7 @@ class HasEnoughInInventoryPatch
                 //Debug.Log("current storage and inventory we are checking are the same, bail out.");
                 return __result;
             }
-
+            
             if (currentStorageInventory != null && __instance.HasEnoughInInventory(currentStorageInventory))
             {
                 //Debug.Log($"current storage has enough: {inventory.GetInstanceID()} {currentStorageInventory?.GetInstanceID()}");
@@ -81,7 +81,7 @@ class SetAmountInInventoryPatch
                     Inventory container = storage.GetInventoryReference();
 
                     bool isOpenByAnotherPlayer = (storage.IsOpen && currentStorageInventory != container);
-                    if (isOpenByAnotherPlayer || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
+                    if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                     {
                         continue;
                     }
@@ -100,8 +100,8 @@ class SetAmountInInventoryPatch
 // * Attempting to craft 2/6 nails crashes the client to desktop, possibly because I only have 3/2 scrap?
 // */
 
-[HarmonyPatch(typeof(PlayerInventory), "RemoveCostMultiple")]
-class RemoveCost
+[HarmonyPatch(typeof(Inventory), "RemoveCostMultiple")]
+class RemoveCostMultiple
 {
     static bool Prefix(CostMultiple[] costMultiple)
     {
