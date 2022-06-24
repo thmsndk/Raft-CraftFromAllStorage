@@ -20,21 +20,29 @@ class CraftFromStorageManager
         return Traverse.Create(costBox).Field("items").GetValue<List<Item_Base>>();
     }
 
-    static public void RemoveCostMultiple(CostMultiple[] costMultipleArray)
+    static public void RemoveCostMultiple(CostMultiple[] costMultipleArray, bool manipulateCostAmount = false)
     {
         if (!CraftFromStorageManager.HasUnlimitedResources())
         {
-            Debug.Log("Getting player inventory");
+            ////Debug.Log("Getting player");
+            ////var player = RAPI.GetLocalPlayer();
+
+            //Debug.Log("Getting player inventory");
             Inventory playerInventory = InventoryManager.GetPlayerInventory();
 
-            Debug.Log("Getting storage inventory");
-            Inventory storageInventory = InventoryManager.GetCurrentStorageInventory();
+            //Debug.Log("Getting storage inventory");
+            //Inventory storageInventory = InventoryManager.GetCurrentStorageInventory();
+            Inventory storageInventory = playerInventory.secondInventory;
 
             // Remove items from player inventory, then the open storage, then other chests.
-
             foreach (var costMultiple in costMultipleArray)
             {
                 var remainingAmount = costMultiple.amount;
+
+                if (remainingAmount <= 0)
+                {
+                    continue;
+                }
 
                 foreach (var item in costMultiple.items)
                 {
@@ -51,7 +59,7 @@ class CraftFromStorageManager
                     Debug.Log($"Preparing to remove {remainingAmount} {item.UniqueName} from currently open storage");
                     // Handle Current Opened Storage
                     remainingAmount = RemoveItemFromInventory(item, storageInventory, remainingAmount);
-                    
+
 
                     if (remainingAmount <= 0)
                     {
@@ -64,12 +72,14 @@ class CraftFromStorageManager
                     foreach (Storage_Small storage in StorageManager.allStorages)
                     {
                         Inventory container = storage.GetInventoryReference();
-                        if (container == playerInventory || container == storageInventory || storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
+                        ////var localPlayerWithinDistance = Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage);
+                        if (container == playerInventory || container == storageInventory || storage.IsOpen || container == null /*|| !localPlayerWithinDistance*/)
                         {
                             continue;
                         }
 
                         remainingAmount = RemoveItemFromInventory(item, container, remainingAmount);
+
                         // We close the storage to sync changes to other players
                         storage.BroadcastCloseEvent();
 
@@ -80,7 +90,13 @@ class CraftFromStorageManager
                         }
                     }
                 }
+
+                if (manipulateCostAmount)
+                {
+                    costMultiple.amount -= costMultiple.amount - remainingAmount;
+                }
             }
+
             Debug.Log($"all resources where removed.");
         }
     }
