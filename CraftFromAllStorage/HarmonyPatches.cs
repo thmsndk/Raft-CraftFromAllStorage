@@ -136,7 +136,7 @@ class RemoveCostMultiple
 /// <summary>
 /// This needs to be overriden to indicate we have enough resources
 /// </summary>
-[HarmonyPatch(typeof(Inventory), "GetItemCount", typeof(Item_Base))]
+[HarmonyPatch(typeof(PlayerInventory), "GetItemCount", typeof(Item_Base))]
 class GetItemCount
 {
     static void Postfix(PlayerInventory __instance, ref int __result, Item_Base item)
@@ -153,6 +153,7 @@ class GetItemCount
         }
 
         // Append item count of storages to original GetItemCount
+        // Append item count of storages to original GetItemCount, Odds are you don't have a storage open when looking at the recipe.
         if (!CraftFromStorageManager.HasUnlimitedResources())
         {
             foreach (Storage_Small storage in StorageManager.allStorages)
@@ -171,7 +172,7 @@ class GetItemCount
 /// Patch RemoveItem so fuel can be removed from storage as well as the players inventory.
 /// this.cookingPot.localPlayer.Inventory.RemoveItem(this.cookingPot.Fuel.fuelItem.UniqueName, fuel);
 /// </summary>
-[HarmonyPatch(typeof(Inventory), "RemoveItem", typeof(string), typeof(int))]
+[HarmonyPatch(typeof(PlayerInventory), "RemoveItem", typeof(string), typeof(int))]
 class RemoveItem
 {
     static bool Prefix(PlayerInventory __instance, string uniqueItemName, int amount)
@@ -198,7 +199,7 @@ class RemoveItem
             foreach (Storage_Small storage in StorageManager.allStorages)
             {
                 Inventory container = storage.GetInventoryReference();
-                if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
+                if (storage.IsOpen || container == null || container == __instance /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                     continue;
 
                 var containerItemCount = container.GetItemCountWithoutDuplicates(uniqueItemName);
