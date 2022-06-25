@@ -52,7 +52,7 @@ class GetItemCount
 /// Patch RemoveItem so fuel can be removed from storage as well as the players inventory.
 /// this.cookingPot.localPlayer.Inventory.RemoveItem(this.cookingPot.Fuel.fuelItem.UniqueName, fuel);
 /// </summary>
-[HarmonyPatch(typeof(Inventory), nameof(PlayerInventory.RemoveItem), typeof(string), typeof(int))]
+[HarmonyPatch(typeof(Inventory), nameof(Inventory.RemoveItem), typeof(string), typeof(int))]
 class RemoveItem
 {
     static bool Prefix(PlayerInventory __instance, string uniqueItemName, int amount)
