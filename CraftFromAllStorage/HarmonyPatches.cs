@@ -60,33 +60,52 @@ class HasEnoughInInventoryPatch
     }
 }
 
-[HarmonyPatch(typeof(BuildingUI_CostBox), "SetAmountInInventory")]
+[HarmonyPatch(typeof(BuildingUI_CostBox), "SetAmountInInventory", typeof(PlayerInventory), typeof(bool))]
+//[HarmonyPatch(typeof(BuildingUI_CostBox), "SetAmountInInventory")]
 class SetAmountInInventoryPatch
 {
-    static void Postfix(PlayerInventory inventory, BuildingUI_CostBox __instance)
+    static void Postfix(BuildingUI_CostBox __instance, PlayerInventory inventory, bool includeSecondaryInventory)
+    //static void Postfix(PlayerInventory inventory, BuildingUI_CostBox __instance)
     {
         if (!CraftFromStorageManager.HasUnlimitedResources())
         {
-            var playerInventoryAmount = __instance.GetAmount();
+            Debug.Log($"BuildingUI_CostBox.SetAmountInInventory includeSecondaryInventory {includeSecondaryInventory}");
+            var playerInventoryAmount = 0;
 
             List<Item_Base> items = CraftFromStorageManager.getItemsFromCostBox(__instance);
 
-            var currentStorageInventory = InventoryManager.GetCurrentStorageInventory();
+            //var currentStorageInventory = InventoryManager.GetCurrentStorageInventory();
 
             int storageInventoryAmount = 0;
             foreach (var costBoxItem in items)
             {
+                playerInventoryAmount += inventory.GetItemCount(costBoxItem);
+                //Debug.Log($"player {inventory.name} {playerInventoryAmount}");
+
+                if (inventory.secondInventory != null)
+                {
+                    storageInventoryAmount += inventory.secondInventory.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
+                    //Debug.Log($"open storage {inventory.secondInventory.name} {storageInventoryAmount}");
+                }
+
                 foreach (Storage_Small storage in StorageManager.allStorages)
                 {
                     Inventory container = storage.GetInventoryReference();
 
-                    bool isOpenByAnotherPlayer = (storage.IsOpen && currentStorageInventory != container);
                     if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                     {
                         continue;
                     }
 
-                    storageInventoryAmount += container.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
+                    if (inventory == container || inventory.secondInventory == container)
+                    {
+                        Debug.Log($"{container.name} being skipped, it is player inventory or secondary inventory.");
+                    }
+
+                    //var amount = container.GetItemCount(costBoxItem);
+                    var amount = container.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
+                    //Debug.Log($"chest storage {container.name} {amount}");
+                    storageInventoryAmount += amount;
                 }
             }
 
