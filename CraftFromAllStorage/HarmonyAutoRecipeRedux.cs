@@ -74,10 +74,10 @@ class RemoveItem
             // Get count in player inventory
             var playerInventoryCount = __instance.GetItemCount(uniqueItemName); // we have only patched the overload that uses the item, so this should not trigger our patch
 
-            var amountToRemoveFromPlayerInventory = amount - Math.Min(playerInventoryCount, amount);
-            var amountToRemove = amountToRemoveFromPlayerInventory;
+            var amountToRemoveFromPlayerInventory = Math.Min(playerInventoryCount, amount);
+            var remainingAmountToRemoveFromStorage = amount - amountToRemoveFromPlayerInventory;
 
-            if (amountToRemove <= 0)
+            if (remainingAmountToRemoveFromStorage <= 0)
             {
                 return true;
             }
@@ -89,12 +89,12 @@ class RemoveItem
                     continue;
 
                 var containerItemCount = container.GetItemCountWithoutDuplicates(uniqueItemName);
-                var amountToRemoveFromContainer = Math.Min(containerItemCount, amountToRemove);
+                var amountToRemoveFromContainer = Math.Min(containerItemCount, remainingAmountToRemoveFromStorage);
 
                 container.RemoveItemUses(uniqueItemName, amountToRemoveFromContainer, false);
-                amountToRemove -= amountToRemoveFromContainer;
+                remainingAmountToRemoveFromStorage -= amountToRemoveFromContainer;
 
-                if (amountToRemove <= 0)
+                if (remainingAmountToRemoveFromStorage <= 0)
                 {
                     // All items have been removed.
                     break;
