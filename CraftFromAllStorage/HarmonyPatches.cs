@@ -97,6 +97,7 @@ class SetAmountInInventoryPatch
                 {
                     Inventory container = storage.GetInventoryReference();
 
+                    //var localPlayerIsWithinDistance = Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage);
                     if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                     {
                         continue;

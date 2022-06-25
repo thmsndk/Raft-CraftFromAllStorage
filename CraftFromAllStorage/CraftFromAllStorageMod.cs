@@ -3,16 +3,12 @@ using System.Reflection;
 using UnityEngine;
 
 /*
- * Ideas
- * Render a sprite above / in front of a container like the island loot mod? - perhaps when you focus it (OnRayed?
- * An Item Sign that renders what is inside a storage chest?
- * All In One inventory that opens by default when you press tab? - should render all storages on your raft.
- * Craft From storage, should craft from all chests, not only your local one.
- * - if you have a storage open, prefer taking items from that one. else take it from the other storages.
- * Hold modifiers to increase how many are crafted when pressing the craft button.
+ * Thanks
+ *  Azzmurr - Creating the original Craft From Storage mod that this mod is derived from.
+ *  Aidanamite - for all their efforts and help on the mod discord, making this mod a reality.
+ *  Fynikoto - For debugging MoreStorages duplicate issues, feature suggestions and guidance.
+ *  DeadByte42 - For the inital Raft v1 PR.
  */
-
-
 public class CraftFromAllStorageMod : Mod
 {
     public static string ModNamePrefix = "<color=#d16e17>[Craft From All Storage]</color>";

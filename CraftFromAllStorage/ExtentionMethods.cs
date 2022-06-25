@@ -472,4 +472,7 @@ static class ExtentionMethods
 
     public static void Broadcast(this Message message, NetworkChannel channel/* = (NetworkChannel)MessageType.ChannelID*/) => ComponentManager<Raft_Network>.Value.RPC(message, Target.Other, EP2PSend.k_EP2PSendReliable, channel);
     public static void Send(this Message message, CSteamID steamID, NetworkChannel channel) => ComponentManager<Raft_Network>.Value.SendP2P(steamID, message, EP2PSend.k_EP2PSendReliable, channel);
+
+    // TODO: check if inventory is locked
+
 }

@@ -44,6 +44,7 @@
     <Compile Include="FixMoreStoragesExtensions.cs" />
     <Compile Include="CraftFromAllStorageMod.cs" />
     <Compile Include="InventoryManager.cs" />
+    <Compile Include="Storage_SmallAdditionalData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
