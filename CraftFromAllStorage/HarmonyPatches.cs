@@ -75,7 +75,7 @@ class SetAmountInInventoryPatch
 
         if (!CraftFromStorageManager.HasUnlimitedResources())
         {
-            Debug.Log($"BuildingUI_CostBox.SetAmountInInventory includeSecondaryInventory {includeSecondaryInventory}");
+            //Debug.Log($"BuildingUI_CostBox.SetAmountInInventory includeSecondaryInventory {includeSecondaryInventory}");
             var playerInventoryAmount = 0;
 
             List<Item_Base> items = CraftFromStorageManager.getItemsFromCostBox(__instance);

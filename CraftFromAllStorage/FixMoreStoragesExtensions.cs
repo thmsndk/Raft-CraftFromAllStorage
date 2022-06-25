@@ -17,7 +17,7 @@ public static class FixMoreStoragesExtensions
         }
         var visitedItemInstances = new HashSet<Slot>();
         int num = 0;
-        var index = 0;
+        //var index = 0;
         foreach (Slot slot in inventory.allSlots)
         {
             var slotNotVisisted = !visitedItemInstances.Contains(slot);
@@ -28,12 +28,12 @@ public static class FixMoreStoragesExtensions
                 //Debug.Log($"{inventory.name} {slot.itemInstance.UniqueIndex} {slot.itemInstance.Amount}");
             }
 
-            if (!slot.IsEmpty && slot.itemInstance.UniqueName == uniqueItemName)
-            {
-                Debug.LogWarning($"{inventory.name} index {index} itemInstance.UniqueIndex {slot.itemInstance.UniqueIndex} {slot.itemInstance.Amount}");
-            }
+            //if (!slot.IsEmpty && slot.itemInstance.UniqueName == uniqueItemName)
+            //{
+            //    Debug.LogWarning($"{inventory.name} index {index} itemInstance.UniqueIndex {slot.itemInstance.UniqueIndex} {slot.itemInstance.Amount}");
+            //}
 
-            index++;
+            //index++;
         }
 
         return num;
