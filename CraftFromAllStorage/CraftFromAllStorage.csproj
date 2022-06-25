@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ExtentionMethods.cs" />
+    <Compile Include="HarmonyAutoRecipeRedux.cs" />
     <Compile Include="HarmonyPatches.cs" />
     <Compile Include="CraftFromStorageManager.cs" />
     <Compile Include="FixMoreStoragesExtensions.cs" />
