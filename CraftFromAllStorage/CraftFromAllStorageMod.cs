@@ -31,6 +31,5 @@ public class CraftFromAllStorageMod : Mod
     {
         Debug.Log(ModNamePrefix + " has been unloaded!");
         harmony.UnpatchAll(harmonyId);
-        Destroy(gameObject);
     }
 }
