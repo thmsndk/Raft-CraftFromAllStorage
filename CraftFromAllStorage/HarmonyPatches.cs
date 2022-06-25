@@ -65,8 +65,14 @@ class HasEnoughInInventoryPatch
 class SetAmountInInventoryPatch
 {
     static void Postfix(BuildingUI_CostBox __instance, PlayerInventory inventory, bool includeSecondaryInventory)
-    //static void Postfix(PlayerInventory inventory, BuildingUI_CostBox __instance)
     {
+        var isPlayerInventory = inventory is PlayerInventory;
+
+        if (!inventory || !isPlayerInventory)
+        {
+            return;
+        }
+
         if (!CraftFromStorageManager.HasUnlimitedResources())
         {
             Debug.Log($"BuildingUI_CostBox.SetAmountInInventory includeSecondaryInventory {includeSecondaryInventory}");
@@ -141,6 +147,12 @@ class GetItemCount
 {
     static void Postfix(PlayerInventory __instance, ref int __result, Item_Base item)
     {
+        var isPlayerInventory = __instance is PlayerInventory;
+        if (!__instance || !isPlayerInventory)
+        {
+            return;
+        }
+
         //// https://stackoverflow.com/a/615976/28145
         //System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
         //MethodBase methodBase = stackTrace.GetFrame(1).GetMethod();
@@ -178,6 +190,12 @@ class RemoveItem
     static bool Prefix(PlayerInventory __instance, string uniqueItemName, int amount)
     {
         if (!Environment.StackTrace.Contains("at AutoRecipeBehaviour.OnIsRayed"))
+        {
+            return true;
+        }
+
+        var isPlayerInventory = __instance is PlayerInventory;
+        if (!__instance || !isPlayerInventory)
         {
             return true;
         }
