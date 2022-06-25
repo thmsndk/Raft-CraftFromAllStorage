@@ -40,6 +40,11 @@ class HasEnoughInInventoryPatch
             {
                 foreach (Storage_Small storage in StorageManager.allStorages)
                 {
+                    if (storage.IsExcludeFromCraftFromAllStorage())
+                    {
+                        continue;
+                    }
+
                     Inventory container = storage.GetInventoryReference();
                     if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                         continue;
@@ -95,6 +100,11 @@ class SetAmountInInventoryPatch
 
                 foreach (Storage_Small storage in StorageManager.allStorages)
                 {
+                    if (storage.IsExcludeFromCraftFromAllStorage())
+                    {
+                        continue;
+                    }
+
                     Inventory container = storage.GetInventoryReference();
 
                     //var localPlayerIsWithinDistance = Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage);
@@ -172,6 +182,11 @@ class InsertItem
 
             foreach (Storage_Small storage in StorageManager.allStorages)
             {
+                if (storage.IsExcludeFromCraftFromAllStorage())
+                {
+                    continue;
+                }
+
                 Inventory container = storage.GetInventoryReference();
                 if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                 {

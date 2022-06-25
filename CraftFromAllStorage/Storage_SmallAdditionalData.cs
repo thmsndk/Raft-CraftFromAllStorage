@@ -41,6 +41,13 @@ public static class Storage_SmallExtension
             Debug.LogException(ex);
         }
     }
+
+    public static bool IsExcludeFromCraftFromAllStorage(this Storage_Small box)
+    {
+        var data = box.GetAdditionalData();
+
+        return data.excludeFromCraftFromAllStorage;
+    }
 }
 
 // Allow toggling the excluded flag on and off for a storage.
@@ -60,11 +67,11 @@ class Storage_SmallPatchOnIsRayed
         {
             displayTextManager.ShowText("Press to INCLUDE in CFAS", MyInput.Keybinds["RMB"].MainKey, 2, 0, false);
         }
-        // TODO: change to a "HOLD" effect to toggle it
+        // TODO: change to a "HOLD" effect to toggle it, perhaps filtered nets has something?
         if (MyInput.GetButtonDown("RMB"))
         {
             additionalData.excludeFromCraftFromAllStorage = !additionalData.excludeFromCraftFromAllStorage; // Toggle bool
-            Debug.Log($"excludeFromCraftFromAllStorage: {additionalData.excludeFromCraftFromAllStorage}");
+            //Debug.Log($"excludeFromCraftFromAllStorage: {additionalData.excludeFromCraftFromAllStorage}");
         }
     }
 }
@@ -97,7 +104,7 @@ class RGD_StorageConstructorSave // Constructor for saving
         if (smallStorage != null)
         {
             var data = smallStorage.GetAdditionalData();
-            Debug.Log($"RGD_Storage.Constructor adding RGD data excludeFromCraftFromAllStorage: {data.excludeFromCraftFromAllStorage}");
+            //Debug.Log($"RGD_Storage.Constructor adding RGD data excludeFromCraftFromAllStorage: {data.excludeFromCraftFromAllStorage}");
             __instance.AddData(data);
         }
     }
@@ -112,7 +119,7 @@ class RGD_StorageConstructorLoad // Constructor for loading
         {
             // Loads from Json that we will create in GetObjectData
             var json = info.GetString("AdditionalData");
-            Debug.Log($"RGD_Storage.Constructor loading json {json}");
+            //Debug.Log($"RGD_Storage.Constructor loading json {json}");
             __instance.AddData(JsonUtility.FromJson<Storage_SmallAdditionalData>(json));
         }
         catch (Exception) { }
@@ -128,9 +135,9 @@ class GetObjectData // Interfering with the serialization flow and adding our cu
         if (RGDStorage_SmallExtension.RGD_data.TryGetValue(__instance, out value))
         {
             var json = JsonUtility.ToJson(value);
-            Debug.Log($"RGD_Storage.GetObjectData saving json {json}");
+            //Debug.Log($"RGD_Storage.GetObjectData saving json {json}");
             // We need to use json because worlds loads before mod compiles
-            info.AddValue("AdditionalData", JsonUtility.ToJson(value));
+            info.AddValue("AdditionalData", json);
         }
     }
 }
@@ -157,7 +164,7 @@ class Storage_SmallRestoreBlockPatch
             Storage_SmallAdditionalData value;
             if (RGDStorage_SmallExtension.RGD_data.TryGetValue(rgdStorage, out value))
             {
-                Debug.Log($"{storage.name} has additonal data {value.excludeFromCraftFromAllStorage}");
+                //Debug.Log($"{storage.name} has additonal data {value.excludeFromCraftFromAllStorage}");
                 storage.AddData(value);
             }
         }

@@ -71,6 +71,11 @@ class CraftFromStorageManager
                     // Handle all other containers
                     foreach (Storage_Small storage in StorageManager.allStorages)
                     {
+                        if (storage.IsExcludeFromCraftFromAllStorage())
+                        {
+                            continue;
+                        }
+
                         Inventory container = storage.GetInventoryReference();
                         ////var localPlayerWithinDistance = Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage);
                         if (container == playerInventory || container == storageInventory || storage.IsOpen || container == null /*|| !localPlayerWithinDistance*/)

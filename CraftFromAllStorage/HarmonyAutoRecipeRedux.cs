@@ -38,6 +38,11 @@ class GetItemCount
         {
             foreach (Storage_Small storage in StorageManager.allStorages)
             {
+                if (storage.IsExcludeFromCraftFromAllStorage())
+                {
+                    continue;
+                }
+
                 Inventory container = storage.GetInventoryReference();
                 if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                     continue;
@@ -84,6 +89,11 @@ class RemoveItem
 
             foreach (Storage_Small storage in StorageManager.allStorages)
             {
+                if (storage.IsExcludeFromCraftFromAllStorage())
+                {
+                    continue;
+                }
+
                 Inventory container = storage.GetInventoryReference();
                 if (storage.IsOpen || container == null || container == __instance /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
                     continue;
