@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
 using Steamworks;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using thmsn.CraftFromAllStorage.Network;
 using UnityEngine;
@@ -23,6 +25,9 @@ namespace thmsn.CraftFromAllStorage
         private const string harmonyId = "com.thmsn.craft-from-all-storage";
         Harmony harmony;
 
+        public static bool worldLoaded = false;
+        public static List<Message> waiting = new List<Message>();
+
         public void Start()
         {
             harmony = new Harmony(harmonyId);
@@ -44,22 +49,86 @@ namespace thmsn.CraftFromAllStorage
             if (netMessage != null)
             {
                 Message message = netMessage.message;
-                if (message.Type == Storage_SmallPatchOnIsRayed.MESSAGE_TYPE)
+                if (worldLoaded)
                 {
-                    var msg = message as Message_Storage_Small_AdditionalData;
-                    var storageManager = RAPI.GetLocalPlayer()?.StorageManager;
+                    ProcessMessage(message);
+                }
+                else
+                {
+                    waiting.Add(message);
+                }
+            }
+        }
 
-                    var storage = storageManager.GetStorageByObjectIndex(msg.storageObjectIndex);
-                    var data = storage.GetAdditionalData();
-                    // TODO: notification of toggled state
-                    data.SetData(msg.data);
-                    if (data.excludeFromCraftFromAllStorage)
+        public static void ProcessMessage(Message message)
+        {
+            if (message.Type == Storage_SmallPatchOnIsRayed.MESSAGE_TYPE)
+            {
+                var msg = message as Message_Storage_Small_AdditionalData;
+
+                if (msg != null)
+                {
+                    var storageManager = RAPI.GetLocalPlayer()?.StorageManager; //  TODO: this is null, storage manager has not initialized yet. and technically the game is not done loading
+                    // TODO: probably need to patch OnWorldReceivedLate
+                    // [HarmonyPatch(typeof(GameManager), "OnWorldRecievedLate")]
+
+                    if (storageManager != null)
                     {
-                        Debug.Log("A storage is now excluded from Craft From All Storage");
+                        var storage = storageManager.GetStorageByObjectIndex(msg.storageObjectIndex);
+
+                        if (storage != null)
+                        {
+                            var data = storage.GetAdditionalData();
+
+                            if (data != null)
+                            {
+                                // TODO: notification of toggled state
+                                data.SetData(msg.data);
+
+                                if (data.excludeFromCraftFromAllStorage)
+                                {
+                                    Debug.Log("A storage is now excluded from Craft From All Storage");
+                                }
+                                else
+                                {
+                                    Debug.Log("A storage is now included in Craft From All Storage");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log($"storage with storageObjectIndex {msg.storageObjectIndex} was not found");
+                        }
                     }
                     else
                     {
-                        Debug.Log("A storage is now included in Craft From All Storage");
+                        Debug.Log("could not find a storage manager");
+                    }
+                }
+                else
+                {
+                    Debug.Log("msg was not a Message_Storage_Small_AdditionalData");
+                }
+            }
+        }
+
+        public override void WorldEvent_OnPlayerConnected(CSteamID steamId, RGD_Settings_Character characterSettings)
+        {
+            if (Raft_Network.IsHost)
+            {
+                //var channel = (NetworkChannel)Storage_SmallPatchOnIsRayed.CHANNEL_ID;
+
+                foreach (Storage_Small storage in StorageManager.allStorages)
+                {
+                    var data = storage.GetAdditionalData();
+                    var network = Traverse.Create(storage).Field("network").GetValue<Raft_Network>();
+
+                    if (data != null && network != null)
+                    {
+                        Debug.Log($"Sending data for {storage.name} excludeFromCraftFromAllStorage: {data.excludeFromCraftFromAllStorage}");
+                        // Broadcast the additional data to other players
+                        var message = new Message_Storage_Small_AdditionalData(Storage_SmallPatchOnIsRayed.MESSAGE_TYPE, network.NetworkIDManager, data, storage);
+                        RAPI.SendNetworkMessage(message, channel: Storage_SmallPatchOnIsRayed.CHANNEL_ID); // TODO: Unsure how to send to a specific player.
                     }
                 }
             }
@@ -67,34 +136,28 @@ namespace thmsn.CraftFromAllStorage
 
         public override void WorldEvent_WorldLoaded()
         {
-            // TODO: request additional data from all storages from the host?
-
-            //if (!Semih_Network.IsHost)
-            //    Message_Storage_RequestLocks.Message.Send(ComponentManager<Semih_Network>.Value.HostID);
-            //else if (ExtraSettingsAPI_Loaded)
-            //    ChestLocks.CopyFrom(ExtraSettingsAPI_GetDataValue("locks", "data").Bytes());
-            //string str = "World loaded with locks:";
-            //foreach (var lockData in ChestLocks)
-            //    str += "\n - " + lockData.Key + " locked by " + lockData.Value;
-            //Debug.Log(str);
-            //CanUnload = false;
+            //if (Raft_Network.IsHost)
+            //{
+            //}
+            worldLoaded = true;
         }
+    }
 
-        public override void WorldEvent_OnPlayerConnected(CSteamID steamid, RGD_Settings_Character characterSettings)
+    [HarmonyPatch(typeof(GameManager), "OnWorldRecievedLate")]
+    class Patch_RemoteWorldLoaded
+    {
+        static void Postfix()
         {
-            base.WorldEvent_OnPlayerConnected(steamid, characterSettings);
+            CraftFromAllStorageMod.worldLoaded = true;
 
-            var network = ComponentManager<Raft_Network>.Value;
-            foreach (Storage_Small storage in StorageManager.allStorages)
+            if (CraftFromAllStorageMod.waiting.Count > 0)
             {
-                var data = storage.GetAdditionalData();
-
-                if (data != null)
+                foreach (var message in CraftFromAllStorageMod.waiting)
                 {
-                    // Broadcast the additional data to other players
-                    var message = new Message_Storage_Small_AdditionalData(Storage_SmallPatchOnIsRayed.MESSAGE_TYPE, network.NetworkIDManager, data, storage);
-                    RAPI.SendNetworkMessage(message, channel: Storage_SmallPatchOnIsRayed.CHANNEL_ID, fallbackSteamID: steamid); // TODO: Unsure if fallbackSteamID limits it to a specific player.
+                    CraftFromAllStorageMod.ProcessMessage(message);
                 }
+
+                CraftFromAllStorageMod.waiting.Clear();
             }
         }
     }
