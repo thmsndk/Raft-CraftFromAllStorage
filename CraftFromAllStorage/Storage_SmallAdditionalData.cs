@@ -18,6 +18,15 @@ public class Storage_SmallAdditionalData
     {
         excludeFromCraftFromAllStorage = false;
     }
+
+    /// <summary>
+    /// Used to set data when updates are sent over network.
+    /// </summary>
+    /// <param name="data"></param>
+    public void SetData(Storage_SmallAdditionalData data)
+    {
+        excludeFromCraftFromAllStorage = data.excludeFromCraftFromAllStorage;
+    }
 }
 
 public static class Storage_SmallExtension
@@ -54,7 +63,10 @@ public static class Storage_SmallExtension
 [HarmonyPatch(typeof(Storage_Small), nameof(Storage_Small.OnIsRayed))]
 class Storage_SmallPatchOnIsRayed
 {
-    private static void Postfix(Storage_Small __instance, ref CanvasHelper ___canvas)
+    public static int CHANNEL_ID = 15007;
+    public static Messages MESSAGE_TYPE = (Messages)1300;
+
+    private static void Postfix(Storage_Small __instance, ref CanvasHelper ___canvas, Raft_Network ___network)
     {
         var displayTextManager = ___canvas.displayTextManager;
 
@@ -72,6 +84,10 @@ class Storage_SmallPatchOnIsRayed
         {
             additionalData.excludeFromCraftFromAllStorage = !additionalData.excludeFromCraftFromAllStorage; // Toggle bool
             //Debug.Log($"excludeFromCraftFromAllStorage: {additionalData.excludeFromCraftFromAllStorage}");
+
+            // Broadcast the additional data to other players
+            var message = new Message_Storage_Small_AdditionalData(MESSAGE_TYPE, ___network.NetworkIDManager, __instance.ObjectIndex, __instance.GetAdditionalData());
+            RAPI.SendNetworkMessage(message, channel: CHANNEL_ID);
         }
     }
 }
@@ -171,15 +187,13 @@ class Storage_SmallRestoreBlockPatch
     }
 }
 
-//[HarmonyPatch(typeof(RGD_Storage), nameof(RGD_Storage.RestoreInventory))]
-//class SteeringWheelRestoreWheelPatch
-//{
-//    private static void Prefix(RGD_Storage __instance, Inventory inventory)
-//    {
-//        Storage_SmallAdditionalData value;
-//        if (RGDStorage_SmallExtension.RGD_data.TryGetValue(rgdStorage, out value))
-//        {
-//            __instance.AddData(value);
-//        }
-//    }
-//}
+[Serializable]
+public class Message_Storage_Small_AdditionalData : Message_NetworkBehaviour_ID
+{
+    public Message_Storage_Small_AdditionalData(Messages type, MonoBehaviour_Network behaviour, uint objectIndex, Storage_SmallAdditionalData data) : base(type, behaviour, objectIndex)
+    {
+        this.data = data;
+    }
+
+    public Storage_SmallAdditionalData data;
+}

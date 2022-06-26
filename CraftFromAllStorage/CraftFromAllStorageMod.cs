@@ -28,4 +28,29 @@ public class CraftFromAllStorageMod : Mod
         Debug.Log(ModNamePrefix + " has been unloaded!");
         harmony.UnpatchAll(harmonyId);
     }
+
+    public void FixedUpdate()
+    {
+        NetworkMessage netMessage = RAPI.ListenForNetworkMessagesOnChannel(Storage_SmallPatchOnIsRayed.CHANNEL_ID);
+        if (netMessage != null)
+        {
+            Message message = netMessage.message;
+            if (message.Type == Storage_SmallPatchOnIsRayed.MESSAGE_TYPE)
+            {
+                var msg = message as Message_Storage_Small_AdditionalData;
+                var storage = NetworkIDManager.GetNetworkIDFromObjectIndex<Storage_Small>(msg.NetworkID_ObjectIndex);
+                var data = storage.GetAdditionalData();
+                // TODO: notification of toggled state
+                data.SetData(msg.data);
+                if (data.excludeFromCraftFromAllStorage)
+                {
+                    Debug.Log("A storage is now excluded from Craft From All Storage");
+                }
+                else
+                {
+                    Debug.Log("A storage is now included in Craft From All Storage");
+                }
+            }
+        }
+    }
 }
