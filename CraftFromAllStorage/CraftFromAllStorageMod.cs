@@ -84,15 +84,17 @@ namespace thmsn.CraftFromAllStorage
         {
             base.WorldEvent_OnPlayerConnected(steamid, characterSettings);
 
+            var network = ComponentManager<Raft_Network>.Value;
             foreach (Storage_Small storage in StorageManager.allStorages)
             {
                 var data = storage.GetAdditionalData();
-                var network = storage.networkedBehaviour;
 
-                // Broadcast the additional data to other players
-                var message = new Message_Storage_Small_AdditionalData(Storage_SmallPatchOnIsRayed.MESSAGE_TYPE, network, data, storage);
-                message.Send(steamid, (NetworkChannel)Storage_SmallPatchOnIsRayed.CHANNEL_ID);
-                //RAPI.SendNetworkMessage(message, channel: Storage_SmallPatchOnIsRayed.CHANNEL_ID, fallbackSteamID: steamid); // TODO: Unsure if fallbackSteamID limits it to a specific player.
+                if (data != null)
+                {
+                    // Broadcast the additional data to other players
+                    var message = new Message_Storage_Small_AdditionalData(Storage_SmallPatchOnIsRayed.MESSAGE_TYPE, network.NetworkIDManager, data, storage);
+                    RAPI.SendNetworkMessage(message, channel: Storage_SmallPatchOnIsRayed.CHANNEL_ID, fallbackSteamID: steamid); // TODO: Unsure if fallbackSteamID limits it to a specific player.
+                }
             }
         }
     }
