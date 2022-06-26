@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using thmsn.CraftFromAllStorage.Network;
 using UnityEngine;
 
 namespace thmsn.CraftFromAllStorage

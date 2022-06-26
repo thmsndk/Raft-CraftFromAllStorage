@@ -38,21 +38,23 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ExtentionMethods.cs" />
-    <Compile Include="GetObjectData.cs" />
-    <Compile Include="HarmonyAutoRecipeRedux.cs" />
-    <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="Patches\Patch_RGD_Storage_GetObjectData.cs" />
+    <Compile Include="Patches\Patch_AutoRecipeRedux.cs" />
+    <Compile Include="Patches\CookingTable_Slot_InsertItem.cs" />
     <Compile Include="CraftFromStorageManager.cs" />
     <Compile Include="FixMoreStoragesExtensions.cs" />
     <Compile Include="CraftFromAllStorageMod.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Network\Message_Storage_Small_AdditionalData.cs" />
-    <Compile Include="RGDStorage_SmallExtension.cs" />
-    <Compile Include="RGD_StorageConstructorLoad.cs" />
-    <Compile Include="RGD_StorageConstructorSave.cs" />
+    <Compile Include="Network\NetworkMessageProcessor.cs" />
+    <Compile Include="Network\Synchronize.cs" />
+    <Compile Include="Patches\Patch_BuildingUI_CostBox_SetAmountInInventoryPatch.cs" />
+    <Compile Include="Patches\Patch_CostMultiple_HasEnoughInInventory.cs" />
+    <Compile Include="Patches\Patch_Inventory_RemoveCostMultiple.cs" />
+    <Compile Include="Patches\Patch_RGD_Storage_Constructor.cs" />
     <Compile Include="Network\Storage_SmallAdditionalData.cs" />
-    <Compile Include="Storage_SmallExtension.cs" />
-    <Compile Include="Storage_SmallPatchOnIsRayed.cs" />
-    <Compile Include="Storage_SmallRestoreBlockPatch.cs" />
+    <Compile Include="Patches\Patch_Storage_Small_OnIsRayed.cs" />
+    <Compile Include="Patches\Patch_Storage_Small_RestoreBlock.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

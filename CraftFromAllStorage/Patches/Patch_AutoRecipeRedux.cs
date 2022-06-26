@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using thmsn.CraftFromAllStorage.Network;
 
-namespace thmsn.CraftFromAllStorage
+namespace thmsn.CraftFromAllStorage.Patches
 {
 
     // Patches for Auto Recipe Redux support
