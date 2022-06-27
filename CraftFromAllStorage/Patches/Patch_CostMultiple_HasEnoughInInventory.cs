@@ -3,11 +3,20 @@ using thmsn.CraftFromAllStorage.Network;
 
 namespace thmsn.CraftFromAllStorage.Patches
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [HarmonyPatch(typeof(CostMultiple), nameof(CostMultiple.HasEnoughInInventory))]
     class Patch_CostMultiple_HasEnoughInInventory
     {
         static bool Postfix(bool __result, CostMultiple __instance, Inventory inventory)
         {
+            var isPlayerInventory = inventory is PlayerInventory;
+            if (!inventory || !isPlayerInventory)
+            {
+                return true;
+            }
+
             // player inventory should already have been checked
             var enoughInPlayerInventory = __result;
 

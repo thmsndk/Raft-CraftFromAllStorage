@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using thmsn.CraftFromAllStorage.Network;
+using UnityEngine;
 
 namespace thmsn.CraftFromAllStorage.Patches
 {
@@ -13,11 +14,12 @@ namespace thmsn.CraftFromAllStorage.Patches
 
     /// <summary>
     /// This needs to be overriden to indicate we have enough resources
+    /// Handle both fuel counts and item counts from AutoRecipeBehaviour.CalculatePreparation (colors resources red if missing)
     /// </summary>
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.GetItemCount), typeof(Item_Base))]
     class GetItemCount
     {
-        static void Postfix(PlayerInventory __instance, ref int __result, Item_Base item)
+        static void Postfix(Inventory __instance, ref int __result, Item_Base item)
         {
             var isPlayerInventory = __instance is PlayerInventory;
             if (!__instance || !isPlayerInventory)
@@ -30,7 +32,8 @@ namespace thmsn.CraftFromAllStorage.Patches
             //MethodBase methodBase = stackTrace.GetFrame(1).GetMethod();
             //Debug.Log("GetItemCount: " + methodBase.);
 
-            // Handle both fuel counts and item counts from AutoRecipeBehaviour.CalculatePreparation (colors resources red if missing)
+            // this might be a peformance hog, and bailing out if it is not a player inventory should be enough, could patch AutoRecipeBehaviour.OnIsRayed specifically perhaps
+            //Debug.Log($"{__instance.GetType().FullName} Inventory.GetItemCount:" + Environment.StackTrace);
             if (!Environment.StackTrace.Contains("at AutoRecipeBehaviour.OnIsRayed"))
             {
                 return;
@@ -64,15 +67,16 @@ namespace thmsn.CraftFromAllStorage.Patches
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.RemoveItem), typeof(string), typeof(int))]
     class RemoveItem
     {
-        static bool Prefix(PlayerInventory __instance, string uniqueItemName, int amount)
+        static bool Prefix(Inventory __instance, string uniqueItemName, int amount)
         {
-            if (!Environment.StackTrace.Contains("at AutoRecipeBehaviour.OnIsRayed"))
+
+            var isPlayerInventory = __instance is PlayerInventory;
+            if (!__instance || !isPlayerInventory)
             {
                 return true;
             }
 
-            var isPlayerInventory = __instance is PlayerInventory;
-            if (!__instance || !isPlayerInventory)
+            if (!Environment.StackTrace.Contains("at AutoRecipeBehaviour.OnIsRayed"))
             {
                 return true;
             }
