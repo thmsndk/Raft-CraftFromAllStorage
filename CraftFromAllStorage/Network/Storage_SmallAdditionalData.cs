@@ -49,7 +49,7 @@ namespace thmsn.CraftFromAllStorage.Network
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                //Debug.LogException(ex);
             }
         }
 
@@ -61,7 +61,7 @@ namespace thmsn.CraftFromAllStorage.Network
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
+                //Debug.LogException(ex);
             }
         }
 
