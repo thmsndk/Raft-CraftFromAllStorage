@@ -17,23 +17,19 @@ namespace thmsn.CraftFromAllStorage.Patches
                 return;
             }
 
+            var keybind = "Rotate"; // TODO: make a changeable keybind?
+
             var displayTextManager = ___canvas.displayTextManager;
 
             var additionalData = __instance.GetAdditionalData();
-            if (!additionalData.excludeFromCraftFromAllStorage)
-            {
-                displayTextManager.ShowText("Press to EXCLUDE from CFAS", MyInput.Keybinds["RMB"].MainKey, 2, 0, false);
-            }
-            else
-            {
-                displayTextManager.ShowText("Press to INCLUDE in CFAS", MyInput.Keybinds["RMB"].MainKey, 2, 0, false);
-            }
+            var text = additionalData.excludeFromCraftFromAllStorage ? "CFAS: <color=red>Excluded</color>" : "CFAS: <color=green>Included</color>";
 
-            // TODO: change to a "HOLD" effect to toggle it, perhaps filtered nets has something?
-            if (MyInput.GetButtonDown("RMB"))
+            displayTextManager.ShowText(text, MyInput.Keybinds[keybind].MainKey, 2, 0, false);
+
+            // TODO: change to a "HOLD" effect to toggle it?
+            if (MyInput.GetButtonDown(keybind))
             {
-                additionalData.excludeFromCraftFromAllStorage = !additionalData.excludeFromCraftFromAllStorage; // Toggle bool
-                                                                                                                //Debug.Log($"excludeFromCraftFromAllStorage: {additionalData.excludeFromCraftFromAllStorage}");
+                additionalData.excludeFromCraftFromAllStorage = !additionalData.excludeFromCraftFromAllStorage;
                 __instance.SendAdditionalDataNetworkMessage(___network.NetworkIDManager, additionalData);
             }
         }
