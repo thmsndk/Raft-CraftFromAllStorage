@@ -18,20 +18,13 @@ namespace thmsn.CraftFromAllStorage.Patches
                 return;
             }
 
-            //// https://stackoverflow.com/a/615976/28145
-            //System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
-            //MethodBase methodBase = stackTrace.GetFrame(1).GetMethod();
-            //Debug.Log("GetItemCount: " + methodBase.);
+            var playerInventory = __instance as PlayerInventory;
 
-            // this might be a peformance hog, and bailing out if it is not a player inventory should be enough, could patch AutoRecipeBehaviour.OnIsRayed specifically perhaps
-            //Debug.Log($"{__instance.GetType().FullName} Inventory.GetItemCount:" + Environment.StackTrace);
-            //if (!Environment.StackTrace.Contains("at AutoRecipeBehaviour.OnIsRayed"))
-            //{
-            //    return;
-            //}
+            if (playerInventory.secondInventory != null)
+            {
+                __result += playerInventory.secondInventory.GetItemCountWithoutDuplicates(item.UniqueName);
+            }
 
-            // Append item count of storages to original GetItemCount
-            // Append item count of storages to original GetItemCount, Odds are you don't have a storage open when looking at the recipe.
             if (!CraftFromStorageManager.HasUnlimitedResources())
             {
                 foreach (Storage_Small storage in StorageManager.allStorages)
