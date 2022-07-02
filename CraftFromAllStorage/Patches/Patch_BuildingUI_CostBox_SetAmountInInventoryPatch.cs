@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace thmsn.CraftFromAllStorage.Patches
 {
+    /// <summary>
+    /// This renders the amount we have when holding the hammer
+    /// </summary>
     [HarmonyPatch(typeof(BuildingUI_CostBox), nameof(BuildingUI_CostBox.SetAmountInInventory), typeof(PlayerInventory), typeof(bool))]
     class Patch_BuildingUI_CostBox_SetAmountInInventoryPatch
     {
@@ -19,53 +22,19 @@ namespace thmsn.CraftFromAllStorage.Patches
 
             if (!CraftFromStorageManager.HasUnlimitedResources())
             {
-                //Debug.Log($"BuildingUI_CostBox.SetAmountInInventory includeSecondaryInventory {includeSecondaryInventory}");
-                var playerInventoryAmount = 0;
+                var playerInventoryAndStorageAmount = 0;
 
                 List<Item_Base> items = CraftFromStorageManager.getItemsFromCostBox(__instance);
 
-                //var currentStorageInventory = InventoryManager.GetCurrentStorageInventory();
+                //Debug.Log($"BuildingUI_CostBox.SetAmountInInventory includeSecondaryInventory {includeSecondaryInventory} ---------------- {items.Count} items");
 
-                int storageInventoryAmount = 0;
                 foreach (var costBoxItem in items)
                 {
-                    playerInventoryAmount += inventory.GetItemCount(costBoxItem);
-                    //Debug.Log($"player {inventory.name} {playerInventoryAmount}");
-
-                    if (inventory.secondInventory != null)
-                    {
-                        storageInventoryAmount += inventory.secondInventory.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
-                        //Debug.Log($"open storage {inventory.secondInventory.name} {storageInventoryAmount}");
-                    }
-
-                    foreach (Storage_Small storage in StorageManager.allStorages)
-                    {
-                        if (storage.IsExcludeFromCraftFromAllStorage())
-                        {
-                            continue;
-                        }
-
-                        Inventory container = storage.GetInventoryReference();
-
-                        //var localPlayerIsWithinDistance = Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage);
-                        if (storage.IsOpen || container == null /*|| !Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage)*/)
-                        {
-                            continue;
-                        }
-
-                        if (inventory == container || inventory.secondInventory == container)
-                        {
-                            Debug.Log($"{container.name} being skipped, it is player inventory or secondary inventory.");
-                        }
-
-                        //var amount = container.GetItemCount(costBoxItem);
-                        var amount = container.GetItemCountWithoutDuplicates(costBoxItem.UniqueName);
-                        //Debug.Log($"chest storage {container.name} {amount}");
-                        storageInventoryAmount += amount;
-                    }
+                    playerInventoryAndStorageAmount += inventory.GetItemCount(costBoxItem); // This includes storages, because we patch PlayerInventory.GetItemCount
+                    //Debug.Log($"{costBoxItem.name} player and storage amount {playerInventoryAndStorageAmount}");
                 }
 
-                __instance.SetAmount(playerInventoryAmount + storageInventoryAmount);
+                __instance.SetAmount(playerInventoryAndStorageAmount);
             }
         }
     }
