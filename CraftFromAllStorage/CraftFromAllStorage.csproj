@@ -38,11 +38,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ExtentionMethods.cs" />
-    <Compile Include="Patches\Block_CookingStand_InsertItem.cs" />
     <Compile Include="Patches\Patch_PlayerInventory_GetItemCount.cs" />
+    <Compile Include="Patches\Patch_PlayerInventory_RemoveItemUses.cs" />
     <Compile Include="Patches\Patch_RGD_Storage_GetObjectData.cs" />
     <Compile Include="Patches\Patch_PlayerInventory_RemoveItem.cs" />
-    <Compile Include="Patches\CookingTable_Slot_InsertItem.cs" />
     <Compile Include="CraftFromStorageManager.cs" />
     <Compile Include="FixMoreStoragesExtensions.cs" />
     <Compile Include="CraftFromAllStorageMod.cs" />
@@ -57,6 +56,7 @@
     <Compile Include="Network\Storage_SmallAdditionalData.cs" />
     <Compile Include="Patches\Patch_Storage_Small_OnIsRayed.cs" />
     <Compile Include="Patches\Patch_Storage_Small_RestoreBlock.cs" />
+    <Compile Include="PlayerInventoryExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
