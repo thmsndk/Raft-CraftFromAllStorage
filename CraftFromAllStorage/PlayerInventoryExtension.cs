@@ -15,13 +15,14 @@ namespace thmsn.CraftFromAllStorage
                 var playerInventoryCount = playerInventory.GetItemCount(uniqueItemName); // we have only patched the overload that uses the item, so this should not trigger our patch
                 var amountToRemoveFromPlayerInventory = Math.Min(playerInventoryCount, amount);
                 var remainingAmountToRemoveFromStorage = amount - amountToRemoveFromPlayerInventory;
-                Debug.Log($"{uniqueItemName} {playerInventoryCount} in inventory, gonna remove {amountToRemoveFromPlayerInventory}, need to remove {remainingAmountToRemoveFromStorage} from storage.");
 
                 if (remainingAmountToRemoveFromStorage <= 0)
                 {
-                    Debug.Log($"{uniqueItemName} has {playerInventoryCount}, removing {amountToRemoveFromPlayerInventory}");
+                    Debug.Log($"{playerInventory.name} {uniqueItemName} {playerInventoryCount}, removing {amountToRemoveFromPlayerInventory}");
                     return true;
                 }
+
+                Debug.Log($"{uniqueItemName} {playerInventoryCount} in inventory, gonna remove {amountToRemoveFromPlayerInventory}, need to remove {remainingAmountToRemoveFromStorage} from storage.");
 
                 // TODO: remove from currently open storage. as a priorty, we don't need to broadcast that because it is currently open.
                 Inventory storageInventory = playerInventory.secondInventory;
@@ -30,7 +31,7 @@ namespace thmsn.CraftFromAllStorage
                 {
                     var containerItemCount = storageInventory.GetItemCountWithoutDuplicates(uniqueItemName);
                     var amountToRemoveFromContainer = Math.Min(containerItemCount, remainingAmountToRemoveFromStorage);
-                    Debug.Log($"{storageInventory.name} {uniqueItemName} {containerItemCount}, removing {amountToRemoveFromContainer}");
+                    Debug.Log($"storage {storageInventory.name} {uniqueItemName} {containerItemCount}, removing {amountToRemoveFromContainer}");
                     storageInventory.RemoveItem(uniqueItemName, amountToRemoveFromContainer);
                     remainingAmountToRemoveFromStorage -= amountToRemoveFromContainer;
                 }
@@ -84,14 +85,14 @@ namespace thmsn.CraftFromAllStorage
                 }
 
                 var runOriginalMethod = amountToRemoveFromPlayerInventory > 0; // only run the original method if player inventory has something to remove.;
-                if (runOriginalMethod)
-                {
-                    Debug.Log($"running original method to remove {amountToRemoveFromPlayerInventory} from player inventory.");
-                }
-                else
-                {
-                    Debug.Log("Not running the original method");
-                }
+                //if (runOriginalMethod)
+                //{
+                //    Debug.Log($"running original method to remove {amountToRemoveFromPlayerInventory} from player inventory.");
+                //}
+                //else
+                //{
+                //    Debug.Log("Not running the original method");
+                //}
                 return runOriginalMethod;
             }
 

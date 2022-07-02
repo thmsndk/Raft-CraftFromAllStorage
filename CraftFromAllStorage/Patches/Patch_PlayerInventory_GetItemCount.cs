@@ -3,8 +3,6 @@ using thmsn.CraftFromAllStorage.Network;
 
 namespace thmsn.CraftFromAllStorage.Patches
 {
-    // Patches for Auto Recipe Redux support
-
     /// <summary>
     /// This needs to be overriden to indicate we have enough resources
     /// Handle both fuel counts and item counts from AutoRecipeBehaviour.CalculatePreparation (colors resources red if missing)
@@ -15,7 +13,7 @@ namespace thmsn.CraftFromAllStorage.Patches
         static void Postfix(Inventory __instance, ref int __result, Item_Base item)
         {
             var isPlayerInventory = __instance is PlayerInventory;
-            if (!__instance || !isPlayerInventory)
+            if (!__instance || !isPlayerInventory || !item)
             {
                 return;
             }
