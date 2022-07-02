@@ -38,8 +38,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ExtentionMethods.cs" />
+    <Compile Include="Patches\Block_CookingStand_InsertItem.cs" />
+    <Compile Include="Patches\Patch_PlayerInventory_GetItemCount.cs" />
     <Compile Include="Patches\Patch_RGD_Storage_GetObjectData.cs" />
-    <Compile Include="Patches\Patch_AutoRecipeRedux.cs" />
+    <Compile Include="Patches\Patch_PlayerInventory_RemoveItem.cs" />
     <Compile Include="Patches\CookingTable_Slot_InsertItem.cs" />
     <Compile Include="CraftFromStorageManager.cs" />
     <Compile Include="FixMoreStoragesExtensions.cs" />

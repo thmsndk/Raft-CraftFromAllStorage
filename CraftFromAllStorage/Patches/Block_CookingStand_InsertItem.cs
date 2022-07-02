@@ -9,11 +9,10 @@
 //namespace thmsn.CraftFromAllStorage.Patches
 //{
 //    /// <summary>
-//    /// Allow Inserting item to CookingTable_Slot to pull from player inventory as well as other storages.
-//    /// For example adding planks to the cooking pot
+//    /// Allow Inserting item to Electric, purifier, smelter to pull from player inventory as well as other storages.
 //    /// </summary>
-//    [HarmonyPatch(typeof(CookingTable_Slot), nameof(CookingTable_Slot.InsertItem))]
-//    class CookingTable_Slot_InsertItem
+//    [HarmonyPatch(typeof(Block_CookingStand), nameof(Block_CookingStand.InsertItem))]
+//    class Block_CookingStand_InsertItem
 //    {
 //        static bool Prefix(CookingTable_Slot __instance,
 //                           Network_Player player,
