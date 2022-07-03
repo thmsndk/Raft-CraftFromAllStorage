@@ -35,9 +35,10 @@ namespace thmsn.CraftFromAllStorage.Patches
 
             if (playerInventory != null)
             {
-                return playerInventory.RemoveItemFromInventoryAndStoragesOnRaft(uniqueItemName, amount);
+                playerInventory.RemoveItemFromInventoryAndStoragesOnRaft(uniqueItemName, amount, false);
             }
-
+            
+            // Let the original method remove items from inventory
             return true;
         }
     }

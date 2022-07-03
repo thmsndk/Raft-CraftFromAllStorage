@@ -2,7 +2,7 @@
 {
     class InventoryManager
     {
-        static public Inventory GetPlayerInventory()
+        static public PlayerInventory GetPlayerInventory()
         {
             return RAPI.GetLocalPlayer()?.Inventory;
         }

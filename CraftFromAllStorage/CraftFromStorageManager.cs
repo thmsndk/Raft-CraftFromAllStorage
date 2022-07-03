@@ -29,108 +29,121 @@ namespace thmsn.CraftFromAllStorage
         {
             if (!HasUnlimitedResources())
             {
-                ////Debug.Log("Getting player");
-                ////var player = RAPI.GetLocalPlayer();
-
                 //Debug.Log("Getting player inventory");
-                Inventory playerInventory = InventoryManager.GetPlayerInventory();
+                var playerInventory = InventoryManager.GetPlayerInventory();
 
-                //Debug.Log("Getting storage inventory");
-                //Inventory storageInventory = InventoryManager.GetCurrentStorageInventory();
-                Inventory storageInventory = playerInventory.secondInventory;
+                var itemsAndAmountToRemove = new List<ItemNameAndAmount>();
 
                 // Remove items from player inventory, then the open storage, then other chests.
                 foreach (var costMultiple in costMultipleArray)
                 {
-                    var remainingAmount = costMultiple.amount;
-
-                    if (remainingAmount <= 0)
+                    if (costMultiple.amount <= 0)
                     {
                         continue;
                     }
 
+                    // Usually there is only 1 item in .items. for example Plank
                     foreach (var item in costMultiple.items)
                     {
-                        Debug.Log($"Preparing to remove {remainingAmount} {item.UniqueName} from player inventory");
-                        // Handle Player inventory
-                        remainingAmount = RemoveItemFromInventory(item, playerInventory, remainingAmount);
-
-                        if (remainingAmount <= 0)
-                        {
-                            Debug.Log($"no more {item.UniqueName} to be removed.");
-                            continue;
-                        }
-
-                        Debug.Log($"Preparing to remove {remainingAmount} {item.UniqueName} from currently open storage");
-                        // Handle Current Opened Storage
-                        remainingAmount = RemoveItemFromInventory(item, storageInventory, remainingAmount);
-
-
-                        if (remainingAmount <= 0)
-                        {
-                            Debug.Log($"no more {item.UniqueName} to be removed.");
-                            continue;
-                        }
-
-                        Debug.Log($"Preparing to remove {remainingAmount} {item.UniqueName} from all other storages");
-                        // Handle all other containers
-                        foreach (Storage_Small storage in StorageManager.allStorages)
-                        {
-                            if (storage.IsExcludeFromCraftFromAllStorage())
-                            {
-                                continue;
-                            }
-
-                            Inventory container = storage.GetInventoryReference();
-                            ////var localPlayerWithinDistance = Helper.LocalPlayerIsWithinDistance(storage.transform.position, player.StorageManager.maxDistanceToStorage);
-                            if (container == playerInventory || container == storageInventory || storage.IsOpen || container == null /*|| !localPlayerWithinDistance*/)
-                            {
-                                continue;
-                            }
-
-                            remainingAmount = RemoveItemFromInventory(item, container, remainingAmount);
-
-                            // We close the storage to sync changes to other players
-                            storage.BroadcastCloseEvent();
-
-                            if (remainingAmount <= 0)
-                            {
-                                Debug.Log($"no more {item.UniqueName} to be removed.");
-                                break;
-                            }
-                        }
+                        itemsAndAmountToRemove.Add(new ItemNameAndAmount(item.UniqueName, costMultiple.amount));
                     }
 
                     if (manipulateCostAmount)
                     {
-                        costMultiple.amount -= costMultiple.amount - remainingAmount;
+                        costMultiple.amount -= costMultiple.amount;
                     }
                 }
 
-                Debug.Log($"all resources where removed.");
+                playerInventory.RemoveItemFromPlayerInventoryAndStoragesOnRaft(itemsAndAmountToRemove);
             }
         }
 
-        private static int RemoveItemFromInventory(Item_Base item, Inventory inventory, int remainingAmount)
+        static public void RemoveItem(PlayerInventory inventory, string uniqueItemName, int amount)
         {
-            // Handle when current storage is null
-            if (inventory == null || item == null)
+            // copied from Inventory.RemoveItem
+
+            if (amount == 0)
             {
-                return remainingAmount;
+                return;
             }
 
-            var inventoryAmount = inventory.GetItemCount(item.UniqueName);
-            Debug.Log($"inventory has {inventoryAmount} {item.UniqueName}");
-            int amountToRemove = Math.Min(remainingAmount, inventoryAmount);
-            if (amountToRemove > 0)
+            var itemByName = ItemManager.GetItemByName(uniqueItemName);
+            if (itemByName == null)
             {
-                Debug.Log($"Preparing to remove {amountToRemove} {item.UniqueName}");
-                inventory.RemoveItem(item.UniqueName, amountToRemove);
-                Debug.Log($"{amountToRemove} {item.UniqueName} was removed");
-                return remainingAmount - amountToRemove;
+                return;
             }
 
-            return remainingAmount;
+            Slot slot = null;
+
+            foreach (Slot allSlot in inventory.allSlots)
+            {
+                if (amount > 0 && !allSlot.IsEmpty && allSlot.itemInstance.UniqueIndex == itemByName.UniqueIndex)
+                {
+                    slot = allSlot;
+                    if (allSlot.itemInstance.Amount >= amount)
+                    {
+                        allSlot.RemoveItem(amount);
+                        break;
+                    }
+                    amount -= allSlot.itemInstance.Amount;
+                    allSlot.RemoveItem(allSlot.itemInstance.Amount);
+                }
+            }
+
+            var player = RAPI.GetLocalPlayer();
+            // TODO: we might have gotten to a slot that is not selected, and it would not be refreshed
+            if (!player.Inventory.hotbar.IsSelectedHotSlot(slot))
+            {
+                return;
+            }
+
+            player.Inventory.hotbar.ReselectCurrentSlot();
         }
+
+        public void RemoveItemUses(
+            PlayerInventory inventory,
+            string uniqueItemName,
+            int usesToRemove,
+            bool addItemAfterUseToInventory = true)
+        {
+            // copied from Inventory.RemoveItemUses
+            if (usesToRemove == 0)
+            {
+                return;
+            }
+
+            var itemByName = ItemManager.GetItemByName(uniqueItemName);
+
+            if (itemByName == null)
+            {
+                return;
+            }
+
+            Slot slot = null;
+            foreach (Slot allSlot in inventory.allSlots)
+            {
+                if (usesToRemove > 0 && !allSlot.IsEmpty && allSlot.itemInstance.UniqueIndex == itemByName.UniqueIndex)
+                {
+                    slot = allSlot;
+                    if (allSlot.itemInstance.UsesInStack >= usesToRemove)
+                    {
+                        allSlot.IncrementUses(-usesToRemove, addItemAfterUseToInventory);
+                        break;
+                    }
+                    usesToRemove -= allSlot.itemInstance.UsesInStack;
+                    allSlot.IncrementUses(-allSlot.itemInstance.UsesInStack, addItemAfterUseToInventory);
+                }
+            }
+
+            var player = RAPI.GetLocalPlayer();
+            // TODO: we might have gotten to a slot that is not selected, and it would not be refreshed
+            if (!player.Inventory.hotbar.IsSelectedHotSlot(slot))
+            {
+                return;
+            }
+
+            player.Inventory.hotbar.ReselectCurrentSlot();
+        }
+
     }
 }
