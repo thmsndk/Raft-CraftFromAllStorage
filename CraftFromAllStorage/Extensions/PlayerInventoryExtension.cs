@@ -3,7 +3,7 @@ using System;
 using thmsn.CraftFromAllStorage.Network;
 using UnityEngine;
 
-namespace thmsn.CraftFromAllStorage
+namespace thmsn.CraftFromAllStorage.Extensions
 {
     public static class PlayerInventoryExtension
     {

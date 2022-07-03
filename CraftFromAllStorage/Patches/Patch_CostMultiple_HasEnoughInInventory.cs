@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using thmsn.CraftFromAllStorage.Extensions;
 using thmsn.CraftFromAllStorage.Network;
 
 namespace thmsn.CraftFromAllStorage.Patches

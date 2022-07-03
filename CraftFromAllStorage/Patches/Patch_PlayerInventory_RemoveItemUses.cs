@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using thmsn.CraftFromAllStorage.Extensions;
 using thmsn.CraftFromAllStorage.Network;
 using UnityEngine;
 

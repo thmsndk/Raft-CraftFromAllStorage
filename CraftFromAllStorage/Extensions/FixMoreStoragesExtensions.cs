@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace thmsn.CraftFromAllStorage
+namespace thmsn.CraftFromAllStorage.Extensions
 {
     public static class FixMoreStoragesExtensions
     {

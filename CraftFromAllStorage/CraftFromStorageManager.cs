@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using thmsn.CraftFromAllStorage.Extensions;
 using thmsn.CraftFromAllStorage.Network;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace thmsn.CraftFromAllStorage
 {
     class CraftFromStorageManager
     {
+        // TODO: could move to RAPI extension
         static public bool HasUnlimitedResources()
         {
             return GameModeValueManager.GetCurrentGameModeValue().playerSpecificVariables.unlimitedResources;
