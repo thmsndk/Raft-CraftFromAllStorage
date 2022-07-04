@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using thmsn.CraftFromAllStorage.Network;
+using UnityEngine;
 
 namespace thmsn.CraftFromAllStorage.Patches
 {
@@ -25,6 +26,12 @@ namespace thmsn.CraftFromAllStorage.Patches
             if (rgdStorage != null)
             {
                 var storage = __result.GetComponent<Storage_Small>();
+
+                if (storage == null)
+                {
+                    Debug.LogWarning($"Could not find Storage_Small component for block with object index {__result.ObjectIndex}");
+                    return;
+                }
 
                 Storage_SmallAdditionalData value;
                 if (Storage_SmallAdditionalDataExtension.RGD_data.TryGetValue(rgdStorage, out value))
