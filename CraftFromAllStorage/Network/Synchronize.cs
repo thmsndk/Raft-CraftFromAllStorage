@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using thmsn.CraftFromAllStorage.Extensions;
 using UnityEngine;
 
 namespace thmsn.CraftFromAllStorage.Network

@@ -11,7 +11,7 @@ namespace thmsn.CraftFromAllStorage.Network
 
         public static void ListenAndProcess()
         {
-            NetworkMessage netMessage = RAPI.ListenForNetworkMessagesOnChannel(Message_Storage_Small_AdditionalData.CHANNEL_ID);
+            global::NetworkMessage netMessage = RAPI.ListenForNetworkMessagesOnChannel(Channel.DEFAULT);
 
             if (netMessage != null)
             {
@@ -30,55 +30,26 @@ namespace thmsn.CraftFromAllStorage.Network
 
         public static void ProcessMessage(Message message)
         {
+            switch (message.Type)
+            {
+                case Message_Storage_Small_AdditionalData.MESSAGE_TYPE:
+                    Message_Storage_Small_AdditionalData.HandleAdditionalData(message as Message_Storage_Small_AdditionalData);
+                    break;
+                case Message_Storage_Small_AnimateOpen.MESSAGE_TYPE:
+                    Message_Storage_Small_AnimateOpen.HandleNetworkMessage(message as Message_Storage_Small_AnimateOpen);
+                    break;
+                case Message_Storage_Small_AnimateClose.MESSAGE_TYPE:
+                    Message_Storage_Small_AnimateClose.HandleNetworkMessage(message as Message_Storage_Small_AnimateClose);
+                    break;
+            }
+
             if (message.Type == Message_Storage_Small_AdditionalData.MESSAGE_TYPE)
             {
-                var msg = message as Message_Storage_Small_AdditionalData;
-
-                if (msg != null)
-                {
-                    var storageManager = RAPI.GetLocalPlayer()?.StorageManager; //  TODO: this is null, storage manager has not initialized yet. and technically the game is not done loading
-                    // TODO: probably need to patch OnWorldReceivedLate
-                    // [HarmonyPatch(typeof(GameManager), "OnWorldRecievedLate")]
-
-                    if (storageManager != null)
-                    {
-                        var storage = storageManager.GetStorageByObjectIndex(msg.storageObjectIndex);
-
-                        if (storage != null)
-                        {
-                            var data = storage.GetAdditionalData();
-
-                            if (data != null)
-                            {
-                                // TODO: notification of toggled state
-                                data.SetData(msg.data);
-
-                                if (data.excludeFromCraftFromAllStorage)
-                                {
-                                    Debug.Log("A storage is now excluded from Craft From All Storage");
-                                }
-                                else
-                                {
-                                    Debug.Log("A storage is now included in Craft From All Storage");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Debug.Log($"storage with storageObjectIndex {msg.storageObjectIndex} was not found");
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log("could not find a storage manager");
-                    }
-                }
-                else
-                {
-                    Debug.Log("msg was not a Message_Storage_Small_AdditionalData");
-                }
+                
             }
         }
+
+        
     }
 
     [HarmonyPatch(typeof(GameManager), "OnWorldRecievedLate")]

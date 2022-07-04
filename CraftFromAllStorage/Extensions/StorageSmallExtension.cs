@@ -6,13 +6,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using thmsn.CraftFromAllStorage.Network;
 using UnityEngine;
 
 namespace thmsn.CraftFromAllStorage.Extensions
 {
     static class StorageSmallExtension
     {
-        static public void AnimateAsOpen(this Storage_Small storage, Network_Player player)
+        public static void BroadcastOpenEvent(this Storage_Small box)
+        {
+            var player = RAPI.GetLocalPlayer();
+
+            // TODO. if we are sending multiple messages, we could potentially batch them together? e.g. removing items from multiple storages.
+            new Message_Storage(Messages.StorageManager_Open, player.StorageManager, box).SendOrBroadcast(NetworkChannel.Channel_Game);
+        }
+
+        public static void BroadcastCloseEvent(this Storage_Small box)
+        {
+            var player = RAPI.GetLocalPlayer();
+
+            new Message_Storage_Close(Messages.StorageManager_Close, player.StorageManager, box).SendOrBroadcast(NetworkChannel.Channel_Game);
+        }
+
+        static public void AnimateAsOpen(this Storage_Small storage)
         {
             var traverse = Traverse.Create(storage);
             //storage.IsOpen = true; // can't do this because it's private
@@ -37,7 +53,7 @@ namespace thmsn.CraftFromAllStorage.Extensions
             //Traverse.Create(storage).Method("UpdateStorageFillRenderers");
         }
 
-        static public void AnimateAsClosed(this Storage_Small storage, Network_Player player)
+        static public void AnimateAsClosed(this Storage_Small storage)
         {
             //storage.IsOpen = true; // can't do this because it's private
             //Traverse.Create(storage).Field("isOpen").SetValue(false);
@@ -57,11 +73,29 @@ namespace thmsn.CraftFromAllStorage.Extensions
             //this.CancelInvoke("AllowCloseWithUseButton");
             //this.Invoke("AllowCloseWithUseButton", 0.15f);
         }
-        static public IEnumerator AnimateAsClosedWithDelay(this Storage_Small storage, Network_Player player, float delay = 0.5f)
+        static public IEnumerator AnimateAsClosedWithDelay(this Storage_Small storage, float delay = 0.5f)
         {
             yield return new WaitForSeconds(delay);
 
-            storage.AnimateAsClosed(player);
+            storage.AnimateAsClosed();
+        }
+
+
+        static public void SendAdditionalDataNetworkMessage(this Storage_Small storage, NetworkIDManager behaviour, Storage_SmallAdditionalData data)
+        {
+            new Message_Storage_Small_AdditionalData(behaviour, data, storage).SendOrBroadcast();
+        }
+
+        static public void SendOpenAnimationNetworkMessage(this Storage_Small storage)
+        {
+            var network = Traverse.Create(storage).Field("network").GetValue<Raft_Network>();
+            new Message_Storage_Small_AnimateOpen(network.NetworkIDManager, storage).SendOrBroadcast();
+        }
+
+        static public void SendCloseAnimationNetworkMessage(this Storage_Small storage)
+        {
+            var network = Traverse.Create(storage).Field("network").GetValue<Raft_Network>();
+            new Message_Storage_Small_AnimateClose(network.NetworkIDManager, storage).SendOrBroadcast();
         }
     }
 }

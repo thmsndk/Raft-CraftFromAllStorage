@@ -41,6 +41,9 @@
     <Compile Include="Extensions\MessageExtension.cs" />
     <Compile Include="Extensions\PlayerInventoryExtension.cs" />
     <Compile Include="Extensions\StorageSmallExtension.cs" />
+    <Compile Include="Network\Message_Storage_Small_AnimateClose.cs" />
+    <Compile Include="Network\NetworkMessage.cs" />
+    <Compile Include="Network\Message_Storage_Small_AnimateOpen.cs" />
     <Compile Include="Patches\Patch_PlayerInventory_GetItemCount.cs" />
     <Compile Include="Patches\Patch_PlayerInventory_RemoveItemUses.cs" />
     <Compile Include="Patches\Patch_RGD_Storage_GetObjectData.cs" />

@@ -113,20 +113,15 @@ namespace thmsn.CraftFromAllStorage.Extensions
                         if (containerItemCount > 0)
                         {
                             if (!wasOpened)
-                            //if (!storage.IsOpen)
                             {
-                                // Open storage event sets the current storage if playernetwork IsLocalPlayer it also sets the secondary inventory
-                                // then it calls storage.Open that will call OpenMenuCloseOther, if it IsLocalPlayer
+                                storage.SendOpenAnimationNetworkMessage(); // cause the box to open on other clients
 
-                                // TODO: there is an issue with MP, crafting window closes if you are not the host, the open event is not rendered as well
-                                storage.BroadcastOpenEvent(); // Open a chest "remotely" this prevents us from opening the chest again in the next run, cause it might be marked open?
+                                // then it sets IsOpen, the currentPlayer on the storage, plays an open sound, animates the open
+                                // and if the player is the local player, it does some things with  the ui, it also sets PlayerItemManager.IsBusy = true;
+                                storage.AnimateAsOpen();
+                                // 0.50 second delay, hopefully enough to simulate the close event
+                                storage.StartCoroutine(storage.AnimateAsClosedWithDelay());
 
-                                if (Raft_Network.IsHost)
-                                {
-                                    storage.AnimateAsOpen(player);
-                                    // 0.50 second delay, hopefully enough to simulate the close event
-                                    storage.StartCoroutine(storage.AnimateAsClosedWithDelay(player)); 
-                                }
 
                                 wasOpened = true;
                             }
@@ -148,10 +143,8 @@ namespace thmsn.CraftFromAllStorage.Extensions
 
                     if (wasOpened)
                     {
-                        // seems to call storage.Close and reset playerInventory.secondInventory.
-
-                        // We close the storage to sync changes to other players, we only need to do that if it is not is a secondary open storage, should trigger a close event natually
-                        storage.BroadcastCloseEvent(); // Close a remotely open chest
+                        storage.BroadcastCloseEvent(); // cause a sync of storage contents
+                        storage.SendCloseAnimationNetworkMessage(); // cause the box to close on other clients
                     }
 
                     // bail out, no reason to check any more storages.
