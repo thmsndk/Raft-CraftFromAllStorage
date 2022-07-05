@@ -31,13 +31,13 @@ namespace thmsn.CraftFromAllStorage
         {
             harmony = new Harmony(harmonyId);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
-            Debug.Log(ModNamePrefix + " has been loaded!");
+            Debug.Log($"{ModNamePrefix} {CraftFromAllStorageMod.modInstance.version} has been loaded!");
 
         }
 
         public void OnModUnload()
         {
-            Debug.Log(ModNamePrefix + " has been unloaded!");
+            Debug.Log($"{ModNamePrefix} {CraftFromAllStorageMod.modInstance.version} has been unloaded!");
             harmony.UnpatchAll(harmonyId);
         }
 

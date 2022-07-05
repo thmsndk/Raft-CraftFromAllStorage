@@ -11,20 +11,29 @@ namespace thmsn.CraftFromAllStorage.Network
 
         public static void ListenAndProcess()
         {
-            global::NetworkMessage netMessage = RAPI.ListenForNetworkMessagesOnChannel(Channel.DEFAULT);
-
-            if (netMessage != null)
+            try
             {
-                Message message = netMessage.message;
+                global::NetworkMessage netMessage = RAPI.ListenForNetworkMessagesOnChannel(Channel.DEFAULT);
 
-                if (CraftFromAllStorageMod.worldLoaded)
+                if (netMessage != null)
                 {
-                    ProcessMessage(message);
+                    Message message = netMessage.message;
+
+                    if (CraftFromAllStorageMod.worldLoaded)
+                    {
+                        ProcessMessage(message);
+                    }
+                    else
+                    {
+                        waiting.Add(message);
+                    }
                 }
-                else
-                {
-                    waiting.Add(message);
-                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to understand a network message, make sure all players are using the same version ({CraftFromAllStorageMod.modInstance.version}) of Craft From All Storage");
+                Debug.LogException(ex);
+                
             }
         }
 
