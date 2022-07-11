@@ -1,11 +1,12 @@
 ﻿using HarmonyLib;
 using thmsn.CraftFromAllStorage.Extensions;
 using thmsn.CraftFromAllStorage.Network;
+using UnityEngine;
 
 namespace thmsn.CraftFromAllStorage.Patches
 {
     /// <summary>
-    /// 
+    /// Enables / Disable crafting
     /// </summary>
     [HarmonyPatch(typeof(CostMultiple), nameof(CostMultiple.HasEnoughInInventory))]
     class Patch_CostMultiple_HasEnoughInInventory
@@ -15,7 +16,8 @@ namespace thmsn.CraftFromAllStorage.Patches
             var isPlayerInventory = inventory is PlayerInventory;
             if (!inventory || !isPlayerInventory)
             {
-                return true;
+                // not the player inventory, bail out
+                return __result;
             }
 
             // player inventory should already have been checked
