@@ -27,6 +27,11 @@ namespace thmsn.CraftFromAllStorage
 
         public static bool worldLoaded = false;
 
+        public static void Log(string message)
+        {
+            Debug.Log($"{ModNamePrefix} {message}");
+        }
+
         public void Start()
         {
             harmony = new Harmony(harmonyId);
@@ -39,6 +44,8 @@ namespace thmsn.CraftFromAllStorage
         {
             Debug.Log($"{ModNamePrefix} {CraftFromAllStorageMod.modInstance.version} has been unloaded!");
             harmony.UnpatchAll(harmonyId);
+
+            
         }
 
         public void FixedUpdate()

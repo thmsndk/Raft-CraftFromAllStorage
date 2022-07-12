@@ -61,6 +61,7 @@
     <Compile Include="Network\Storage_SmallAdditionalData.cs" />
     <Compile Include="Patches\Patch_Storage_Small_OnIsRayed.cs" />
     <Compile Include="Patches\Patch_Storage_Small_RestoreBlock.cs" />
+    <Compile Include="Patches\Patch_Tank_BiofuelExtractor_OnIsRayed.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
